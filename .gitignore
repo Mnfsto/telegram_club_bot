@@ -1,0 +1,34 @@
+# Файл с секретами (токены, пароли, ключи API, строка подключения к БД)
+.env
+
+# Папка с зависимостями Node.js (устанавливается через npm install)
+node_modules/
+
+# Логи
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Файлы операционной системы
+.DS_Store
+Thumbs.db
+
+# Файлы IDE (если используете)
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Временные файлы тестов / покрытия кода (если будете использовать)
+coverage/
+.nyc_output/
+
+# Файлы сборки (если будете использовать, например, TypeScript)
+# dist/
+# build/
