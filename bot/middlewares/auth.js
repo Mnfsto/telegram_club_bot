@@ -18,10 +18,27 @@ async function getOrCreateUser (ctx) {
         }
         return user;
     }catch(err){
-        console.log(err)
+        console.error(err)
+        console.log('User not created ')
     }
 }
+async function checkUserName(ctx, next) {
+    try {
+        const telegramId = ctx.from.id;
+        const username = ctx.from.username;
+        let user = await User.findOne({telegramId})
+        if (!user.username){
+            user.username = username;
+            await user.save();
+        }
+        next();
+    } catch (err){
+        console.error(err);
+        console.log('Username not checked')
+    }
 
+
+}
 async function checkAdmin(ctx, next) {
     const user = await User.findOne({ telegramId: ctx.from.id });
     if (user && user.role === 'admin') {
@@ -30,6 +47,24 @@ async function checkAdmin(ctx, next) {
         ctx.reply('У вас нет прав для выполнения этой команды.');
     }
 
+}
+
+
+
+
+async function isAdmin (ctx) {
+
+    if (!ctx.from || !ctx.from.id) {
+        console.warn('checkIsAdmin: ctx.from.id is missing');
+        return false;
+    }
+    try {
+        const user = await User.findOne({ telegramId: ctx.from.id });
+        return !!(user && user.role === 'admin');
+    } catch (err) {
+        console.error('Error checking admin status:', err);
+        return false; // Считаем не админом при ошибке
+    }
 }
 
 async function getParticipants (ctx, training){
@@ -43,5 +78,5 @@ async function getParticipants (ctx, training){
 }
 
 module.exports = {
-    getOrCreateUser, checkAdmin, getParticipants, greetedUsers
+    getOrCreateUser, checkAdmin, isAdmin, getParticipants, checkUserName, greetedUsers,
 }

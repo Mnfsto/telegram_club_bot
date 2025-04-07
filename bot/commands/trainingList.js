@@ -11,7 +11,7 @@ async function trainingListCommand (ctx){
                 const trainingDate = parseDate(training.date);
                 return trainingDate >= today;
             });
-            if (!trainings.length) return ctx.reply('Нет запланированных тренировок.');
+            if (!nextTrainings.length) return ctx.reply('Нет запланированных тренировок.');
 
             let message = 'Расписание тренировок:\n';
             nextTrainings.forEach(t => {
