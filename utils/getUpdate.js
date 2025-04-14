@@ -1,14 +1,3 @@
-// function getTelegramUpdates(botToken) {
-//     const url = `https://api.telegram.org/bot${botToken}/getUpdates?offset=-1`;
-//     try{
-//         const res = fetch(url).then((res) => res.json());
-//         const telegramUpd = Promise.resolve(res)
-//         return telegramUpd;
-//     } catch (err){
-//         console.error('failed getTelegramUpdates');
-//     }
-// }
-// getTelegramUpdates(`8009995385:AAE-joZc_Pbr1rs6IRJIHSo_gcCaJM0KS6I`).then((res) => {console.log(res)});
 
 async function getTelegramUpdates(botToken) {
     const url = `https://api.telegram.org/bot${botToken}/getUpdates`;
@@ -27,7 +16,7 @@ async function getTelegramUpdates(botToken) {
 }
 
 // Замените 'YOUR_BOT_TOKEN' на токен вашего бота
-const botToken = "8009995385:AAE-joZc_Pbr1rs6IRJIHSo_gcCaJM0KS6I";
+const botToken = process.env.BOT_TOKEN;
 
 getTelegramUpdates(botToken).then((updates) => {
     if (updates && updates.result) {

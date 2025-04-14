@@ -1,11 +1,8 @@
-require('dotenv').config();
-const express = require('express');
 const mongoose = require('mongoose')
 const { Markup,Telegraf } = require('telegraf');
 const string_decoder = require("node:string_decoder");
 
-const app = express();
-const urlencodedParser = express.urlencoded({extended: false});
+const setupApiServer = require('./api/server.js');
 const PORT = process.env.PORT || 8088;
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const cron = require('node-cron')
@@ -40,44 +37,6 @@ const ApplicationMember = require('./models/application.js') //Member model
 
 
 
-//API to get the schedule
-app.get('/api/trainings', async (req, res) => {
-    const trainings = await Training.find();
-    res.json(trainings);
-})
-
-
-
-// API for adding a new request (from the site)
-app.post('/api/applications', async (req, res) => {
-    const { name, phone, email } = req.body;
-    const message = `Новая заявка! \n Name: ${name} \n Phone: ${phone} \n Email: ${email}`;
-    try{
-    await bot.telegram.sendMessage(process.env.ADMIN_CHAT_ID, message);
-    const newMember = new ApplicationMember({name, phone, email});
-    await newMember.save();
-    console.log(message)
-    res.status(200).send({message: 'Заявка отправлена'})
-    } catch (err) {
-        console.error('failed to send an application from the site');
-        console.log(err);
-    }
-})
-// Post method for adding a new request (from the site)
-app.post("/", urlencodedParser, async function (req, res) {
-    const { name, phone, email } = req.body;
-    const message = `Новая заявка! \n Name: ${name} \n Phone: ${phone} \n Email: ${email}`;
-    try{
-        await bot.telegram.sendMessage(process.env.ADMIN_CHAT_ID, message);
-        const newMember = new ApplicationMember({name, phone, email});
-        await newMember.save();
-        console.log(message)
-        res.status(200).send({message: 'Заявка отправлена'})
-    } catch (err) {
-        console.error('failed to send an application from the site');
-        console.log(err);
-    }
-});
 
 
 
@@ -87,6 +46,7 @@ bot.start(startCommand);
 
 /// User Interface
 const textHandlers = require('./bot/handlers')
+const http = require("node:http");
 bot.on('text', textHandlers);
 
 
@@ -657,13 +617,14 @@ cron.schedule('0 6 * * *', async ctx => {
 bot.launch();
 
 // Start Server
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
 
-app.listen(PORT, () => {
+const appServer = setupApiServer(bot);
+
+const botServer = http.createServer(appServer)
+botServer.listen(PORT, () => {
     console.log(`Bot server started on ${PORT}!`);
 });
+
 // Close Server
 process.on("SIGINT", async () => {
     //await client.close();
