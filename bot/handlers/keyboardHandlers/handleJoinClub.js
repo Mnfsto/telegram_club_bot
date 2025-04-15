@@ -3,7 +3,7 @@ const User = require("../../../models/user");
 
 async function handleJoinClub (ctx) {
     const user = await User.findOne({ telegramId: ctx.from.id });
-    const groupLink = 'https://t.me/+XEuv4MtxymowZTJi';
+    const groupLink = process.env.GROUP_LINK;
     if (user && user.joinedClub) {
         return ctx.reply(`Вы уже в клубе! Вот ссылка на группу:\n${groupLink}`);
     }
@@ -24,7 +24,7 @@ async function handleJoinClub (ctx) {
 Разделять и уважать ценности клуба, основанные на взаимной поддержке, энтузиазме и любви к велоспорту. Помнить принцип: "Члены клуба служат ему так же, как клуб служит им".
 
 Подтверждение Согласия:
-Приобретая клубную форму Arcadia Cycling Club, Вы подтверждаете свое ознакомление и согласие с данными Условиями Членства.
+Вы подтверждаете свое ознакомление и согласие с данными Условиями Членства.
 Arcadia Cycling Club – не просто тренировки, это сообщество и образ жизни!
 `;
 

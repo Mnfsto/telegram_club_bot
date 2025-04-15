@@ -1,6 +1,7 @@
 const {getOrCreateUser} = require("../../middlewares/auth");
 const Training = require("../../../models/training");
 const {Markup} = require("telegraf");
+const {bot} = require('../../../bot');
 
 async function handleSendWorkout (ctx) {
     const today = new Date();

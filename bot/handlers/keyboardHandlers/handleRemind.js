@@ -5,10 +5,13 @@ async function handleRemind (ctx) {
     const today = new Date();
     today.setDate(today.getDate() + 1);
     const formattedDate = `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
-    const nextTraining = await Training.findOne({date: formattedDate});
-    const participants = nextTraining.participants;
-    console.log(participants);
+
     try {
+        const nextTraining = await Training.findOne({date: formattedDate});
+        if (nextTraining === null) return ctx.reply("Нет участников на следущую тренировку !");
+        const participants = nextTraining.participants;
+
+
         const users = await User.find({ _id: { $in: participants } });
         console.log("Рассылаю тренировки пользователям", formattedDate);
         const train = `📅 ${nextTraining.date} в ${nextTraining.time}, 📍 ${nextTraining.location}\n`;

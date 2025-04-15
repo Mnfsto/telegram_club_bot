@@ -25,7 +25,7 @@ function setupApiServer(botInstance){
     });
 
     app.post('/api/applications', async (req, res) => {
-        // TODO: Добавить валидацию (Joi)
+
         const { name, phone, email } = req.body;
         const message = `Новая заявка! \n Name: ${name} \n Phone: ${phone} \n Email: ${email}`;
         try {
@@ -49,7 +49,8 @@ function setupApiServer(botInstance){
 
     app.get('/', (req, res) => {
         try {
-            res.sendFile(__dirname + '/index.html');
+            const projectRoot = process.cwd();
+            res.sendFile(projectRoot + '/index.html');
         } catch (err) {
             console.error("Error sending index.html:", err);
             res.status(404).send("Not Found"); // Или 500
@@ -57,6 +58,23 @@ function setupApiServer(botInstance){
 
 
     });
+
+    // Post method for adding a new request (from the site)
+    app.post("/", async function (req, res) {
+        const { name, phone, email } = req.body;
+        const message = `Новая заявка! \n Name: ${name} \n Phone: ${phone} \n Email: ${email}`;
+        try{
+            await botInstance.telegram.sendMessage(process.env.ADMIN_CHAT_ID, message);
+            const newMember = new ApplicationMember({name, phone, email});
+            await newMember.save();
+            console.log(message)
+            res.status(200).send({message: 'Заявка отправлена'})
+        } catch (err) {
+            console.error('failed to send an application from the site');
+            console.log(err);
+        }
+    });
+
 
     app.use('/api/*', (req, res) => {
         res.status(404).json({ message: 'API endpoint not found' });
