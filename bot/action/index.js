@@ -6,8 +6,8 @@ const { parseDate } = require('../utils/dateUtils');
 const { isAdmin } = require('../middlewares/auth.js');
 const {Telegraf} = require("telegraf");
 const bot = new Telegraf(process.env.BOT_TOKEN);
-// Кэш на основе Set
-const actionCache = new Set(); // Хранит строки вида "telegramId_trainingId_action"
+
+const actionCache = new Set();
 
 async function addTrainingHelper(ctx, time, location) {
 
@@ -34,7 +34,7 @@ async function addTrainingHelper(ctx, time, location) {
 }
 
 async function deleteTrainingHelper(ctx, time, location) {
-    // !!! Использовать Date/hours/minutes после исправления модели !!!
+
     if (!await isAdmin(ctx)) return ctx.answerCbQuery('Только для админов');
 
     const today = new Date();
@@ -60,8 +60,8 @@ async function deleteAllUpcomingTrainings(ctx) {
     const today = new Date();
 
     try {
-        const trainings = await Training.find(); // Получаем все
-        const upcomingTrainings = trainings.filter(t => parseDate(t.date) >= today); // Фильтруем
+        const trainings = await Training.find();
+        const upcomingTrainings = trainings.filter(t => parseDate(t.date) >= today);
 
         if (!upcomingTrainings.length) {
             return ctx.answerCbQuery('Нет предстоящих тренировок для удаления.');
@@ -86,18 +86,18 @@ async function handleCustomWorkout(ctx) {
     const location = "Локация";
     const time = '08:30';
     const draftMessage = `/addtraining ${date} ${time} ${location}`;
-    await ctx.reply( `Скопируй и измени: \`${draftMessage}\``, { parse_mode: 'MarkdownV2' }); // Используем Markdown для `
+    await ctx.reply( `Скопируй и измени: \`${draftMessage}\``, { parse_mode: 'MarkdownV2' });
     await ctx.answerCbQuery();
 }
 
 async function handleGoAction(ctx, match) {
-    await checkUserName(ctx, () => {}); // Применяем middleware вручную
+    await checkUserName(ctx, () => {});
     const trainingId = match[1];
     const telegramId = ctx.from.id;
-    const cacheKey = `${telegramId}_${trainingId}_go`; // Используем один кэш-ключ для go/notgo
+    const cacheKey = `${telegramId}_${trainingId}_go`;
     const cacheKeyOther = `${telegramId}_${trainingId}_notgo`;
 
-    // Проверяем оба кэша
+
     if (actionCache.has(cacheKey) || actionCache.has(cacheKeyOther)) {
         console.log(`Action already processed for user ${telegramId}, training ${trainingId}`);
         return ctx.answerCbQuery('Вы уже ответили');
@@ -114,9 +114,9 @@ async function handleGoAction(ctx, match) {
             return ctx.answerCbQuery('Тренировка не найдена');
         }
 
-        if (!training.participants.some(id => id.equals(user._id))) { // Проверяем через equals для ObjectId
+        if (!training.participants.some(id => id.equals(user._id))) {
             training.participants.push(user._id);
-            // !!! Логика начисления пикселей - пересмотреть !!!
+
             user.pixels = (user.pixels || 0) + 1; // Безопасное инкрементирование
             await training.save();
             await user.save();
@@ -135,13 +135,13 @@ async function handleGoAction(ctx, match) {
         }
     } catch (err) {
         console.error('Error in go action:', err);
-        // Возможно, стоит уведомить пользователя об ошибке в чат
+
         ctx.answerCbQuery('Произошла ошибка');
     }
 }
 
 async function handleNotGoAction(ctx, match) {
-    await checkUserName(ctx, () => {}); // Применяем middleware вручную
+    await checkUserName(ctx, next => {});
     const trainingId = match[1];
     const telegramId = ctx.from.id;
     const cacheKey = `${telegramId}_${trainingId}_notgo`;
@@ -153,7 +153,7 @@ async function handleNotGoAction(ctx, match) {
     }
 
     try {
-        const user = await getOrCreateUser(ctx); // Получаем пользователя
+        const user = await getOrCreateUser(ctx);
         const threadId = Number(process.env.GROUP_CHAT_THREAD_TRAINING);
         const groupId = process.env.GROUP_CHAT_ID;
 
@@ -169,9 +169,9 @@ async function handleNotGoAction(ctx, match) {
 }
 
 async function handleJoinAgree(ctx) {
-    const groupLink = process.env.GROUP_LINK || 'https://t.me/your_group_invite_link'; // Ссылка из .env
+    const groupLink = process.env.GROUP_LINK || 'https://t.me/your_group_invite_link'; //
     try {
-        const user = await getOrCreateUser(ctx); // Получаем или создаем пользователя
+        const user = await getOrCreateUser(ctx);
 
         if (user.joinedClub) {
             await ctx.editMessageText(`Вы уже в клубе! Вот ссылка на группу:\n${groupLink}`);
@@ -184,8 +184,7 @@ async function handleJoinAgree(ctx) {
         await ctx.editMessageText(
             `Отлично! Вы согласились с клубной политикой. Присоединяйтесь к нашей группе в Telegram:\n${groupLink}`
         );
-        // Можно отправить уведомление админу или в группу о новом члене
-        // await ctx.telegram.sendMessage(process.env.ADMIN_CHAT_ID, `@${user.username || user.name} вступил в клуб через бота.`);
+
         ctx.answerCbQuery('Добро пожаловать!');
     } catch (err){
         console.error('Failed Join club agree:', err);
@@ -197,12 +196,12 @@ async function handleJoinDecline(ctx) {
     try {
         await ctx.editMessageText(
             'Жаль, что вы отказались. Если передумаете, просто нажмите "🚴 Join Club 🚴" снова!'
-            // { parse_mode: 'Markdown' } // Markdown не нужен для этого текста
+
         );
         await ctx.answerCbQuery();
     } catch (err) {
         console.error('Failed Join club decline:', err);
-        // Не отвечаем пользователю, если сообщение уже нельзя изменить
+
         try { await ctx.answerCbQuery(); } catch {}
     }
 }

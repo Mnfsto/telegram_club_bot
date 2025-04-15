@@ -1,10 +1,9 @@
 const User = require("../../../models/user");
-const {Telegraf} = require("telegraf");
-const bot = new Telegraf(process.env.BOT_TOKEN);
+
 
 async function handleRank(ctx) {
     try {
-        // Условия рейтинга
+
         const conditions = `
 📈 Рейтинг Arcadia Cycling Club
 - За каждое посещение тренировки вы получаете 1 пиксель
@@ -14,10 +13,10 @@ async function handleRank(ctx) {
 Топ пользователей по пикселям
 `;
 
-        // Получаем всех пользователей, отсортированных по убыванию пикселей
-        const users = await User.find({ pixels: { $gt: 0 } }) // Только с пикселями > 0
-            .sort({ pixels: -1 }) // Сортировка по убыванию
-            .limit(10); // Топ-10 (можно изменить)
+
+        const users = await User.find({ pixels: { $gt: 0 } })
+            .sort({ pixels: -1 })
+            .limit(10);
 
         if (!users.length) {
             return ctx.reply(`${conditions}Пока никто не заработал пиксели. Посещайте тренировки!`, { parse_mode: 'Markdown' });
@@ -29,12 +28,11 @@ async function handleRank(ctx) {
             return `${position}. ${user.username || user.telegramId} — ${user.pixels} пикселей`;
         }).join('\n');
 
-        // Полный текст сообщения
-        const fullMessage = `${conditions}${rankingTable}`;
-        console.log('Sending message:', fullMessage); // Для отладки
 
-        await bot.telegram.sendMessage(
-            ctx.chat.id, // Отправляем в текущий чат
+        const fullMessage = `${conditions}${rankingTable}`;
+        console.log('Sending message:', fullMessage);
+
+        return ctx.reply(
             fullMessage
         );
     } catch (err) {

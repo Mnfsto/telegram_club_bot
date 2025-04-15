@@ -15,10 +15,10 @@ async function handleShare (ctx) {
     const shareText = `Присоединяйся к тренировке!\n📅 ${nextTraining.date} в ${nextTraining.time}\n📍 ${nextTraining.location}\nУзнай подробности у бота!`;
 
     // Генерируем ссылку на бота с параметром
-    const botUsername = '@PixelCoachBot'; // Замените на имя вашего бота (например, @MyTrainingBot)
+    const botUsername = '@PixelCoachBot';
     const shareLink = `https://t.me/${botUsername}?start=training_${nextTraining._id}`;
 
-    // Отправляем сообщение с кнопкой "Поделиться"
+
     await ctx.reply(
         `${shareText}\n\nПригласи друзей по ссылке ниже:`,
         Markup.inlineKeyboard([

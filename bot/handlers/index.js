@@ -21,8 +21,6 @@ const adminButtonActions = new Map([
     ...commonButtonActions,
     ["🚴 Add a Workout", handleAddWorkout],
     ["❌ Delete Workout", handleDeleteWorkout],
-    ["🗣️ Send a workout", handleSendWorkout],
-    ["📢 Remind everyone", handleRemind],
 ]);
 
 const userButtonActions = new Map([

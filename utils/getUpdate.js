@@ -1,4 +1,4 @@
-
+const botToken = process.env.BOT_TOKEN;
 async function getTelegramUpdates(botToken) {
     const url = `https://api.telegram.org/bot${botToken}/getUpdates`;
 
@@ -15,12 +15,14 @@ async function getTelegramUpdates(botToken) {
     }
 }
 
-// Замените 'YOUR_BOT_TOKEN' на токен вашего бота
-const botToken = process.env.BOT_TOKEN;
 
-getTelegramUpdates(botToken).then((updates) => {
+
+
+
+
+module.exports = getTelegramUpdates(botToken).then((updates) => {
     if (updates && updates.result) {
-        // Обрабатываем полученные обновления
+
         console.log(updates);
         if (updates.result.length > 0){
             const chatId = updates.result[0].message.chat.id;

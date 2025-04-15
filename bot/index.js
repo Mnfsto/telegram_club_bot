@@ -31,6 +31,13 @@ bot.on('text', textHandlers);
 
 
 // ACTION
+const createHandleRemind = require('../bot/handlers/keyboardHandlers/handleRemind')
+const createHandleSendWorkout = require('../bot/handlers/keyboardHandlers/handleSendWorkout.js');
+const handleSendWorkout = createHandleSendWorkout(bot);
+const handleRemind = createHandleRemind(bot);
+bot.hears('🗣️ Send a workout', checkAdmin, handleSendWorkout);
+bot.hears("📢 Remind everyone", checkAdmin, handleRemind);
+
 const { handleCallbackQuery } = require('./action')
 bot.on('callback_query', handleCallbackQuery);
 
@@ -46,22 +53,6 @@ bot.on('message', async (ctx, next) => {
     if (chatType === 'group' || chatType === 'supergroup') {
         const user = await getOrCreateUser(ctx);
 
-        // // Если пользователь ещё не вступил в клуб и не получил приветствие
-        // if (!user.joinedClub && !greetedUsers.has(telegramId)) {
-        //     const threadId = Number(process.env.GROUP_CHAT_THREAD_TRAINING);
-        //
-        //     await bot.telegram.sendMessage(
-        //         process.env.GROUP_CHAT_ID,
-        //         `Привет, @${ctx.from.username || ctx.from.id}! Хочешь вступить в наш клуб?`,
-        //         {
-        //             message_thread_id: threadId,
-        //             reply_markup: Markup.inlineKeyboard([
-        //                 Markup.button.callback('Join Club', `join_${telegramId}`)
-        //             ]).reply_markup
-        //         }
-        //     );
-        //     greetedUsers.add(telegramId); // Отмечаем, что пользователь получил приветствие
-        // }
     }
     return next();
 });

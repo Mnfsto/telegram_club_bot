@@ -42,7 +42,7 @@ async function checkUserName(ctx, next) {
 async function checkAdmin(ctx, next) {
     const user = await User.findOne({ telegramId: ctx.from.id });
     if (user && user.role === 'admin') {
-        await next(); // Выполнить следующий обработчик (команду)
+        await next();
     } else {
         ctx.reply('У вас нет прав для выполнения этой команды.');
     }

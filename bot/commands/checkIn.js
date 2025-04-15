@@ -9,33 +9,33 @@
         const [date, time, username] = args;
         console.log(`Проверка: ${date} ${time} ${username}`);
 
-        // Валидация формата даты и времени (простая проверка)
+
         if (!/^\d{2}\.\d{2}\.\d{4}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) {
             return ctx.reply('Неверный формат даты или времени. Пример: /checkin 28.03.2025 08:00 @username');
         }
 
-        // Убираем @ из username, если есть
+
         const cleanUsername = username.startsWith('@') ? username.slice(1) : username;
 
-        // Находим пользователя по username
+
         const user = await User.findOne({ username: cleanUsername });
         if (!user) {
             return ctx.reply(`Пользователь ${username} не найден.`);
         }
 
-        // Находим тренировку
+
         const training = await Training.findOne({ date, time });
         if (!training) {
             return ctx.reply(`Тренировка ${date} в ${time} не найдена.`);
         }
 
-        // Проверяем, отмечен ли пользователь
+
         const userId = user._id;
         if (training.participants.some(id => id.equals(userId))) {
             return ctx.reply(`${username} уже отмечен на этой тренировке!`);
         }
 
-        // Добавляем пользователя в участники
+
         training.participants.push(userId);
         await training.save();
 

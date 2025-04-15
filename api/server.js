@@ -15,7 +15,7 @@ function setupApiServer(botInstance){
 
     app.get('/api/trainings', async (req, res) => {
         try {
-            // !!! Использовать Date/hours/minutes после исправления модели !!!
+
             const trainings = await Training.find()/*.sort({ date: 1, hours: 1, minutes: 1 })*/;
             res.json(trainings);
         } catch (err) {
@@ -34,7 +34,7 @@ function setupApiServer(botInstance){
             await newMember.save();
             console.log("New application saved:", newMember);
 
-            // Уведомляем админа через переданный botInstance
+
             if (botInstance && process.env.ADMIN_CHAT_ID) {
                 await botInstance.telegram.sendMessage(process.env.ADMIN_CHAT_ID, message);
             } else {

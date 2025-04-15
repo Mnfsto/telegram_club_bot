@@ -1,8 +1,5 @@
 const Training = require('../../models/training');
 
-
-
-
 async function addTrainingCommand(ctx){
     const [_, date, time, ...locationArr] = ctx.message.text.split(' ');
     const location = locationArr.join(' ');

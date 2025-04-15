@@ -15,7 +15,7 @@ async function startCommand (ctx){
 
             ] )
                 .resize())
-        //bot.action("addTraining", async ctx => await ctx.editMessageCaption("/addtraining ДД.ММ.ГГГГ ЧЧ:ММ Место") )
+
 
     } else{
 
