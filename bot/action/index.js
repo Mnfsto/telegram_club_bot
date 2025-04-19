@@ -110,7 +110,7 @@ async function handleNotGoAction(ctx, match) {
         if (groupId && threadId) {
             await bot.telegram.sendMessage(groupId, `:_( @${user.username || user.name} не сможет`, { message_thread_id: threadId });
         }
-        actionCache.add(cacheKey); // Добавляем в кэш
+        actionCache.add(cacheKey);
         ctx.answerCbQuery('Жаль :(');
     } catch (err) {
         console.error('Error in notgo action:', err);
@@ -209,8 +209,8 @@ async function handleJoinDecline(ctx) {
 }
 
 const regexActionHandlers = [
-    { regex: /go_(.+)/, handler: handleGoAction },
     { regex: /notgo_(.+)/, handler: handleNotGoAction },
+    { regex: /go_(.+)/, handler: handleGoAction },
     // { regex: /join_(.+)/, handler: handleGroupJoinAction }
 ];
 

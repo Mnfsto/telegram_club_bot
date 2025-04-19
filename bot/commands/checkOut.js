@@ -1,10 +1,10 @@
 const User = require("../../models/user");
-
+const Training = require('../../models/training');
 
 
 async function checkOutCommand  (ctx) {
     try {
-        const args = ctx.message.text.split(' ').slice(1); // Убираем "/checkout"
+        const args = ctx.message.text.split(' ').slice(1);
         if (args.length < 3) {
             return ctx.reply('Используйте: /checkout DD.MM.YYYY HH:MM @username');
         }
@@ -49,7 +49,4 @@ async function checkOutCommand  (ctx) {
     }
 };
 
-module.exports = {
-    checkOutCommand,
-
-}
+module.exports = checkOutCommand;

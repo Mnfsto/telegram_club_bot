@@ -1,20 +1,34 @@
 const Training = require('../../../models/training.js');
-const {parseDate} = require("../../utils/dateUtils");
+const {formatDates} = require("../../utils/dateUtils");
 
 async function handleListTrainings (ctx){
 
-    const today = new Date();
-    const formattedDate =`${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
+    const now = new Date();
+    const today = formatDates(now);
+    const tomorrowDay = now;
+    tomorrowDay.setDate(tomorrowDay.getDate() +1);
+    const tomorrow = formatDates(tomorrowDay);
+
+    console.log(today)
+    console.log(tomorrow)
     try {
-        const trainings = await Training.find({ date: { $gte: formattedDate } }).sort({ date: 1 });
-        const nextTrainings = trainings.filter(training => {
+        const trainingsToday = await Training.find({ date: { $gte: today } }).sort({ date: 1 });
+        const nextTrainings = trainingsToday.filter(training => {
             const trainingDate = training.date;
-            return trainingDate <= formattedDate;
+            return trainingDate <= today;
         });
-        if (!nextTrainings.length) return ctx.reply('Нет запланированных тренировок.');
+        const trainingTomorrow = await Training.find({ date: { $gte: tomorrow } }).sort({ date: 1 });
+        const nextTrainingsTomorrow = trainingTomorrow.filter(training => {
+            const trainingDate = training.date;
+            return trainingDate <= tomorrow;
+        });
+        if (!nextTrainings.length && nextTrainingsTomorrow) return ctx.reply('Нет запланированных тренировок.');
 
         let message = 'Расписание тренировок:\n';
         nextTrainings.forEach(t => {
+            message += `📅 ${t.date} в ${t.time}, 📍 ${t.location}\n`;
+        });
+        nextTrainingsTomorrow.forEach(t => {
             message += `📅 ${t.date} в ${t.time}, 📍 ${t.location}\n`;
         });
         ctx.reply(message);

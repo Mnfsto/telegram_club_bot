@@ -1,5 +1,5 @@
 const {Markup, Telegraf} = require("telegraf");
-const {bot} = require('../../../bot');
+
 
 async function handleRateUs (ctx) {
 

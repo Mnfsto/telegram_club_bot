@@ -20,7 +20,7 @@ const {
 
 //Command /start
 bot.start(startCommand);
-bot.command('trainingList',trainingListCommand);
+bot.command('traininglist',trainingListCommand);
 bot.command('addtraining',checkAdmin, addTrainingCommand);
 bot.command('checkout', checkAdmin, checkOutCommand);
 bot.command('checkin', checkAdmin, checkInCommand);

@@ -1,5 +1,5 @@
 const User = require("../../models/user");
-
+const Training = require('../../models/training');
  async function checkInCommand (ctx) {
     try {
         const args = ctx.message.text.split(' ').slice(1); // Убираем "/checkin"
@@ -47,7 +47,4 @@ const User = require("../../models/user");
     }
 };
 
-module.exports = {
-    checkInCommand,
-
-}
+module.exports = checkInCommand;

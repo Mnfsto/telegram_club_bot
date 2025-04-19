@@ -63,7 +63,7 @@ async function isAdmin (ctx) {
         return !!(user && user.role === 'admin');
     } catch (err) {
         console.error('Error checking admin status:', err);
-        return false; // Считаем не админом при ошибке
+        return false;
     }
 }
 

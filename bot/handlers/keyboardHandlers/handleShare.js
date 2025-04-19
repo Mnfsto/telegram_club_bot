@@ -3,7 +3,7 @@ const {Markup} = require("telegraf");
 
 async function handleShare (ctx) {
     const today = new Date();
-    today.setDate(today.getDate() + 1);
+    today.setDate(today.getDate());
     const formattedDate = `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
 
     const nextTraining = await Training.findOne({ date: formattedDate });
@@ -11,10 +11,8 @@ async function handleShare (ctx) {
         return ctx.reply('Тренировка не найдена.');
     }
 
-    // Текст для шаринга
     const shareText = `Присоединяйся к тренировке!\n📅 ${nextTraining.date} в ${nextTraining.time}\n📍 ${nextTraining.location}\nУзнай подробности у бота!`;
 
-    // Генерируем ссылку на бота с параметром
     const botUsername = '@PixelCoachBot';
     const shareLink = `https://t.me/${botUsername}?start=training_${nextTraining._id}`;
 

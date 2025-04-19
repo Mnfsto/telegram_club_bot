@@ -24,7 +24,6 @@ const adminButtonActions = new Map([
 ]);
 
 const userButtonActions = new Map([
-    ...commonButtonActions,
     ["📈 Rank", handleRank],
     ["🚴 Join Club 🚴", handleJoinClub],
     ["⭐️ Rate us", handleRateUs],

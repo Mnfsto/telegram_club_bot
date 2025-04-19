@@ -30,7 +30,7 @@ async function handleAddWorkout (ctx){
         });
         if (!trainings.length) return ctx.reply('Нет запланированных тренировок.');
 
-        let message = 'Расписание тренировок:\n';
+        let message = 'Расписание тренировок на завтра:\n';
         nextTrainings.forEach(t => {
             message += `📅 ${t.date} в ${t.time}, 📍 ${t.location}\n`;
         });
