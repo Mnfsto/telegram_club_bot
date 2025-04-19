@@ -90,6 +90,34 @@ async function handleCustomWorkout(ctx) {
     await ctx.answerCbQuery();
 }
 
+async function handleNotGoAction(ctx, match) {
+    await checkUserName(ctx, next => {});
+    const trainingId = match[1];
+    const telegramId = ctx.from.id;
+    const cacheKey = `${telegramId}_${trainingId}_notgo`;
+    const cacheKeyOther = `${telegramId}_${trainingId}_go`;
+
+    if (actionCache.has(cacheKey) || actionCache.has(cacheKeyOther)) {
+        console.log(`Action already processed for user ${telegramId}, training ${trainingId}`);
+        return ctx.answerCbQuery('Вы уже ответили');
+    }
+
+    try {
+        const user = await getOrCreateUser(ctx);
+        const threadId = Number(process.env.GROUP_CHAT_THREAD_TRAINING);
+        const groupId = process.env.GROUP_CHAT_ID;
+
+        if (groupId && threadId) {
+            await bot.telegram.sendMessage(groupId, `:_( @${user.username || user.name} не сможет`, { message_thread_id: threadId });
+        }
+        actionCache.add(cacheKey); // Добавляем в кэш
+        ctx.answerCbQuery('Жаль :(');
+    } catch (err) {
+        console.error('Error in notgo action:', err);
+        ctx.answerCbQuery('Произошла ошибка');
+    }
+}
+
 async function handleGoAction(ctx, match) {
     await checkUserName(ctx, () => {});
     const trainingId = match[1];
@@ -140,33 +168,7 @@ async function handleGoAction(ctx, match) {
     }
 }
 
-async function handleNotGoAction(ctx, match) {
-    await checkUserName(ctx, next => {});
-    const trainingId = match[1];
-    const telegramId = ctx.from.id;
-    const cacheKey = `${telegramId}_${trainingId}_notgo`;
-    const cacheKeyOther = `${telegramId}_${trainingId}_go`;
 
-    if (actionCache.has(cacheKey) || actionCache.has(cacheKeyOther)) {
-        console.log(`Action already processed for user ${telegramId}, training ${trainingId}`);
-        return ctx.answerCbQuery('Вы уже ответили');
-    }
-
-    try {
-        const user = await getOrCreateUser(ctx);
-        const threadId = Number(process.env.GROUP_CHAT_THREAD_TRAINING);
-        const groupId = process.env.GROUP_CHAT_ID;
-
-        if (groupId && threadId) {
-            await bot.telegram.sendMessage(groupId, `:_( @${user.username || user.name} не сможет`, { message_thread_id: threadId });
-        }
-        actionCache.add(cacheKey); // Добавляем в кэш
-        ctx.answerCbQuery('Жаль :(');
-    } catch (err) {
-        console.error('Error in notgo action:', err);
-        ctx.answerCbQuery('Произошла ошибка');
-    }
-}
 
 async function handleJoinAgree(ctx) {
     const groupLink = process.env.GROUP_LINK || 'https://t.me/your_group_invite_link'; //

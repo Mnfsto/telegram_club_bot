@@ -9,8 +9,8 @@ async function handleNextTraining (ctx) {
     try {
         const trainings = await Training.find({ date: { $gte: formattedDate } }).sort({ date: 1 });
         const nextTrainings = trainings.filter(training => {
-            const trainingDate = parseDate(training.date);
-            return trainingDate >= today;
+            const trainingDate = training.date;
+            return trainingDate <= formattedDate;
         });
         if (!nextTrainings.length) return ctx.reply('Нет запланированных тренировок.');
 

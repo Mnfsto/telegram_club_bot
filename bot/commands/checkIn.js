@@ -1,3 +1,4 @@
+const User = require("../../models/user");
 
  async function checkInCommand (ctx) {
     try {

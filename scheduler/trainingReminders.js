@@ -1,6 +1,8 @@
 const cron = require("node-cron");
 const {bot} = require("../bot");
 const {Markup} = require("telegraf");
+const Training = require('../models/training');
+const User = require("../models/user");
 
 async function sendDailyRemindFirst (ctx) {
     const today = new Date();

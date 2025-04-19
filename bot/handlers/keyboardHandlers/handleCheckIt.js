@@ -7,19 +7,19 @@ async function handleCheckIt (ctx) {
     const formattedDate =`${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
     try {
 
-        const trainings = await Training.find({ date: { $gte: formattedDate } }).sort({ date: 1 });
+        const trainings = await Training.find({ date: { $gte: formattedDate } }).sort({ date: 1});
         const nextTrainings = trainings.filter(training => {
-            const trainingDate = parseDate(training.date);
-            return trainingDate >= today;
+            const trainingDate = training.date;
+            return trainingDate <= formattedDate;
         });
-        if (!trainings) return ctx.reply('Нет запланированных тренировок.');
+
+        console.log(nextTrainings)
+        if (!nextTrainings) return ctx.reply('Нет запланированных тренировок.');
         let message = '';
         let groupSize = 0;
         for (const training of nextTrainings) {
             const listParticipants = training.participants;
             const participants = await User.find({ _id: { $in: listParticipants } });
-
-            // Формируем список участников для текущей тренировки
             const participantList = participants.length
                 ? participants.map((user, index) => `${index + 1}. @${user.username}`).join('\n')
                 : 'Нет участников';
