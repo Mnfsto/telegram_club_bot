@@ -9,12 +9,14 @@ const handleRemind = require('./keyboardHandlers/handleRemind');
 const handleSendWorkout = require('./keyboardHandlers/handleSendWorkout');
 const handleRateUs = require('./keyboardHandlers/handleRateUs');
 const handleNextTraining = require('./keyboardHandlers/handleNextTraining');
+const handleCertActivation =  require('./keyboardHandlers/handleCertActivation');
 const { isAdmin } = require('../middlewares/auth.js');
 
 const commonButtonActions = new Map([
     ["🗓️ Training List", handlerListTrainings],
     ["👥 Share", handleShare],
     ["✔️ Check it", handleCheckIt],
+    ["Activate Certificate", handleCertActivation],
 ]);
 
 const adminButtonActions = new Map([

@@ -4,7 +4,7 @@ const addTrainingCommand = require('./addTraining');
 const checkInCommand = require('./checkIn');
 const checkOutCommand = require('./checkOut');
 const trainingInfoCommand = require('./trainingInfo');
-
+const addCertCommand = require('./createCertificates');
 
 module.exports = {
     startCommand,
@@ -13,4 +13,6 @@ module.exports = {
     checkInCommand,
     checkOutCommand,
     trainingInfoCommand,
+    addCertCommand,
+
 }

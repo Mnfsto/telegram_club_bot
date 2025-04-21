@@ -1,9 +1,13 @@
 const User = require("../../models/user");
 const {Markup} = require("telegraf");
+const handleCertActivation = require("../handlers/keyboardHandlers/handleCertActivation");
+const Certificate = require('../../models/certificates');
 
 async function startCommand (ctx){
     const telegramId = ctx.from.id;
+    let certActive = await Certificate.findOne({redeemedBy: telegramId});
     let user = await User.findOne({ telegramId });
+    const changeBtn = (certActive !== null && certActive.redeemedBy == telegramId  ? "🚴 Next training": "Activate Certificate");
     const admin = process.env.ADMIN_CHAT_ID;
     if (telegramId == admin) {
         ctx.reply("Hello Admin",
@@ -11,7 +15,7 @@ async function startCommand (ctx){
                 ["🚴 Add a Workout", "❌ Delete Workout"], // Row1 with 2 buttons
                 ["🗣️ Send a workout", "✔️ Check it"], // Row2 with 2 buttons
                 ["📢 Remind everyone", "🗓️ Training List", "👥 Share"], // Row3 with 3 buttons
-
+                ["Activate Certificate"],
 
             ] )
                 .resize())
@@ -33,9 +37,9 @@ async function startCommand (ctx){
             '\n' +
             'Если ты здесь впервые, нажми \'🚴 Join Club 🚴\', чтобы ознакомиться с условиями и вступить!',
             Markup.keyboard([
-                ["🗓️ Training List", "📈 Rank"], // Row1 with 2 buttons
-                ["🚴 Join Club 🚴", "🚴 Next training"], // Row2 with 2 buttons
-                [ "⭐️ Rate us", "👥 Share"], // Row3 with 2 buttons
+                ["🚴 Join Club 🚴", `${changeBtn}`],
+                ["🗓️ Training List", "📈 Rank"],
+                [ "⭐️ Rate us", "👥 Share"],
             ])
                 .resize(),
 

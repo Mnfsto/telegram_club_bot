@@ -26,7 +26,7 @@ async function handleCheckIt (ctx) {
             groupSize +=1;
             message += `📅 *${training.date} в ${training.time}* (${training.location || 'Место не указано'}):\n${participantList}\n\n`;
         }
-        if(!groupSize) return message = 'Нет участников';
+        groupSize === 0? message = 'Нет участников': message;
 
         ctx.reply(message);
     } catch (err) {

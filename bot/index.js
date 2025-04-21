@@ -3,10 +3,11 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const {parseDate} = require('./utils/dateUtils.js')
 const Training = require('../models/training');
+const Certificate = require('../models/certificates');
 const { profileScene, PROFILE_SCENE_ID } = require('./scenes');
+const { activateCertScene, ACTIVATE_CERT_SCENE_ID } = require('./scenes/activateCertificate.scene');
 
-
-const stage = new Scenes.Stage([profileScene /*, other scenes... */]);
+const stage = new Scenes.Stage([profileScene, activateCertScene]);
 bot.use(session());
 bot.use(stage.middleware());
 //User Authentication
@@ -19,6 +20,7 @@ const {
     checkInCommand,
     checkOutCommand,
     trainingInfoCommand,
+    addCertCommand,
 
 } = require('./commands')
 
@@ -29,6 +31,7 @@ bot.command('addtraining',checkAdmin, addTrainingCommand);
 bot.command('checkout', checkAdmin, checkOutCommand);
 bot.command('checkin', checkAdmin, checkInCommand);
 bot.command('training_info', trainingInfoCommand);
+bot.command('create_cert', addCertCommand);
 /// User Interface
 const textHandlers = require('./handlers')
 const http = require("node:http");
