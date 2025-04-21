@@ -1,11 +1,14 @@
-const {Telegraf} = require("telegraf");
+const { Telegraf, Scenes, session} = require("telegraf");
 const bot = new Telegraf(process.env.BOT_TOKEN);
-// Функция для преобразования строки "DD.MM.YYYY" в объект Date
+
 const {parseDate} = require('./utils/dateUtils.js')
 const Training = require('../models/training');
+const { profileScene, PROFILE_SCENE_ID } = require('./scenes');
 
 
-
+const stage = new Scenes.Stage([profileScene /*, other scenes... */]);
+bot.use(session());
+bot.use(stage.middleware());
 //User Authentication
 const {getOrCreateUser, checkAdmin, checkUserName, getParticipants, greetedUsers} = require('./middlewares/auth.js');
 //Commands ./bot/commands
@@ -15,6 +18,7 @@ const {
     addTrainingCommand,
     checkInCommand,
     checkOutCommand,
+    trainingInfoCommand,
 
 } = require('./commands')
 
@@ -24,6 +28,7 @@ bot.command('traininglist',trainingListCommand);
 bot.command('addtraining',checkAdmin, addTrainingCommand);
 bot.command('checkout', checkAdmin, checkOutCommand);
 bot.command('checkin', checkAdmin, checkInCommand);
+bot.command('training_info', trainingInfoCommand);
 /// User Interface
 const textHandlers = require('./handlers')
 const http = require("node:http");
@@ -37,6 +42,7 @@ const handleSendWorkout = createHandleSendWorkout(bot);
 const handleRemind = createHandleRemind(bot);
 bot.hears('🗣️ Send a workout', checkAdmin, handleSendWorkout);
 bot.hears("📢 Remind everyone", checkAdmin, handleRemind);
+
 
 const { handleCallbackQuery } = require('./action')
 bot.on('callback_query', handleCallbackQuery);

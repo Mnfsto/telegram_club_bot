@@ -12,6 +12,7 @@ async function handleListTrainings (ctx){
     console.log(today)
     console.log(tomorrow)
     try {
+
         const trainingsToday = await Training.find({ date: { $gte: today } }).sort({ date: 1 });
         const nextTrainings = trainingsToday.filter(training => {
             const trainingDate = training.date;
@@ -22,7 +23,7 @@ async function handleListTrainings (ctx){
             const trainingDate = training.date;
             return trainingDate <= tomorrow;
         });
-        if (!nextTrainings.length && nextTrainingsTomorrow) return ctx.reply('Нет запланированных тренировок.');
+        if (!nextTrainings.length && nextTrainingsTomorrow) return ctx.reply('Нет запланированных тренировок.\nИнформация о тренировках команда /training_info');
 
         let message = 'Расписание тренировок:\n';
         nextTrainings.forEach(t => {
@@ -31,6 +32,7 @@ async function handleListTrainings (ctx){
         nextTrainingsTomorrow.forEach(t => {
             message += `📅 ${t.date} в ${t.time}, 📍 ${t.location}\n`;
         });
+
         ctx.reply(message);
     } catch (err){
         console.error('failed checkin training');

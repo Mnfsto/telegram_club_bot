@@ -3,6 +3,7 @@ const trainingListCommand = require('./trainingList.js');
 const addTrainingCommand = require('./addTraining');
 const checkInCommand = require('./checkIn');
 const checkOutCommand = require('./checkOut');
+const trainingInfoCommand = require('./trainingInfo');
 
 
 module.exports = {
@@ -11,4 +12,5 @@ module.exports = {
     addTrainingCommand,
     checkInCommand,
     checkOutCommand,
+    trainingInfoCommand,
 }

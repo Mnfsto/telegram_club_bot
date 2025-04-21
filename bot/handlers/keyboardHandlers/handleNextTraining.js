@@ -12,7 +12,7 @@ async function handleNextTraining (ctx) {
             const trainingDate = training.date;
             return trainingDate <= formattedDate;
         });
-        if (!nextTrainings.length) return ctx.reply('Нет запланированных тренировок.');
+        if (!nextTrainings.length) return ctx.reply('Нет запланированных тренировок.\nИнформация о тренировках команда /training_info');
 
         let message = 'Расписание тренировок:\n';
         nextTrainings.forEach(t => {

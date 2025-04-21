@@ -1,5 +1,7 @@
 const Training = require('../../models/training.js');
 const User = require('../../models/user.js');
+const { Scenes } = require('telegraf');
+const { PROFILE_SCENE_ID } = require('../scenes');
 const { getOrCreateUser, checkUserName, checkAdmin } = require('../middlewares/auth.js');
 const { parseDate } = require('../utils/dateUtils');
 
@@ -180,14 +182,17 @@ async function handleJoinAgree(ctx) {
             return ctx.answerCbQuery('Вы уже в клубе!');
         }
 
-        user.joinedClub = true;
+
         await user.save();
 
         await ctx.editMessageText(
-            `Отлично! Вы согласились с клубной политикой. Присоединяйтесь к нашей группе в Telegram:\n${groupLink}`
+            'Отлично! Вы приняли условия клуба. Теперь давайте заполним ваш профиль.'
         );
-
         ctx.answerCbQuery('Добро пожаловать!');
+
+        await ctx.scene.enter(PROFILE_SCENE_ID);
+
+
     } catch (err){
         console.error('Failed Join club agree:', err);
         ctx.answerCbQuery('Произошла ошибка.');
@@ -272,4 +277,5 @@ async function handleCallbackQuery(ctx) {
 }
 
 module.exports = {
-    handleCallbackQuery};
+    handleCallbackQuery
+};

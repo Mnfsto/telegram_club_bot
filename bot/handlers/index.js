@@ -34,19 +34,25 @@ const userButtonActions = new Map([
 
 
  module.exports = async (ctx, next) => {
-    if (!ctx.message?.text) return next();
+     if (!ctx.message?.text || ctx.message.text.trim() === '') {
+         return next();
+     }
     try {
         const messageText = ctx.message.text;
         let handler = null;
-
         const userIsAdmin = await isAdmin(ctx);
 
-        const actionMap = userIsAdmin ? adminButtonActions : userButtonActions;
+        const actionMap = userIsAdmin
+            ? new Map([...commonButtonActions, ...adminButtonActions])
+            : new Map([...commonButtonActions, ...userButtonActions]);
+
         handler = actionMap.get(messageText);
 
         if (handler) {
+            console.log(`Keyboard middleware handling: "${messageText}"`);
             await handler(ctx);
         } else {
+            console.log(`Keyboard middleware did not find handler for: "${messageText}"`);
             return next();
         }
     } catch (err) {
