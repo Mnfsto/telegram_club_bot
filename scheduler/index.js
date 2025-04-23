@@ -1,6 +1,5 @@
 const scheduleReminders= require('./trainingReminders')
-
-
+const {bot} = require("../bot");
 
 
 function startSchedule (bot) {

@@ -11,7 +11,7 @@ const Certificate = require('../../models/certificates');
  */
 async function createBatchCertificates(codes, commonData) {
     if (!codes || codes.length === 0) {
-        console.log("Список кодов пуст. Сертификаты не созданы.");
+        console.log("Список кодів порожній. Сертифікати не створено.");
         return [];
     }
 
@@ -28,19 +28,19 @@ async function createBatchCertificates(codes, commonData) {
 
         const insertedCertificates = await Certificate.insertMany(certificatesToInsert, { ordered: false });
 
-        console.log(`Успешно создано и сохранено ${insertedCertificates.length} сертификатов.`);
+        console.log(`Успішно створено та збережено ${insertedCertificates.length} сертифікатів.`);
         // console.log(insertedCertificates);
         return insertedCertificates;
 
     } catch (error) {
-        console.error('Ошибка при создании партии сертификатов:', error.message);
+        console.error('Помилка під час створення партії сертифікатів:', error.message);
         if (error.name === 'BulkWriteError') {
-            console.error('Детали ошибки вставки:');
+            console.error('Деталі помилки вставки:');
 
             error.writeErrors?.forEach(err => {
-                console.error(`  - Ошибка для документа ${err.index}: ${err.errmsg}`);
+                console.error(`  - Помилка для документа ${err.index}: ${err.errmsg}`);
             });
-            console.error(`  - Количество успешно вставленных (при ordered:false это может быть неточно): ${error.result?.nInserted || 0}`);
+            console.error(`  - Кількість успішно вставлених (при ordered:false це може бути неточно): ${error.result?.nInserted || 0}`);
         }
         return [];
     }
@@ -54,10 +54,10 @@ async function addCertCommand(ctx){
         currency: 'PIXELS',
         expiresAt: new Date('2025-12-31')
     };
-    if (!codes) return ctx.reply('Использование: /creat_cert cdb-23434 cbd-434234 ...');
+    if (!codes || codes.length === 0) return ctx.reply('Використання: /creat_cert cdb-23434 cbd-434234 ...');
     try {
         console.log(codes)
-        createBatchCertificates(codes, commonInfo);
+        await createBatchCertificates(codes, commonInfo);
     }  catch (err){
         console.error('failed add training');
         console.log(err);

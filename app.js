@@ -8,7 +8,6 @@ console.log(`PORT: ${PORT}`);
 const setupApiServer = require('./api/server.js');
 const startScheduler = require('./scheduler')
 
-
 //Conect DataBase
 connectDB();
 
