@@ -28,7 +28,8 @@ async function startCommand (ctx){
                 [getText('activateCertBtn')],
 
             ] )
-                .resize())
+                .resize().persistent())
+
 
 
     } else{
@@ -39,7 +40,7 @@ async function startCommand (ctx){
                 [getText('trainingListBtn'), getText('rankBtn')],
                 [getText('rateUsBtn'), getText('shareBtn')],
             ])
-                .resize(),
+                .resize().persistent(),
 
         )
     }

@@ -6,6 +6,8 @@ const keyboardAddWorkout = Markup.inlineKeyboard([
     [Markup.button.callback("Додати Завтра 411 Б. 18:00", "add411_18")],
     [Markup.button.callback("Додати Завтра I❤️A 10:00", "addILA_10")],
     [Markup.button.callback("Додати Завтра Ланж. 11:00", "addLanzh_11")],
+    [Markup.button.callback("Додати Завтра  17:00 411 Б.", "addWeekday")],
+    [Markup.button.callback("Додати Завтра  15:00 Ланж.", "addWeekend")],
     [Markup.button.callback("Додати Вручну", "customWorkout")],
 ]);
 

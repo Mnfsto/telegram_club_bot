@@ -107,10 +107,9 @@ async function handleNotGoAction(ctx, match) {
 
     try {
         const user = await getOrCreateUser(ctx);
-        const threadId = Number(process.env.GROUP_CHAT_THREAD_TRAINING);
         const groupId = process.env.GROUP_CHAT_ID;
 
-        if (groupId && threadId) {
+        if (groupId) {
             await bot.telegram.sendMessage(groupId, `:_( @${user.username || user.name} не сможет`, { message_thread_id: threadId });
         }
         actionCache.add(cacheKey);
@@ -137,7 +136,6 @@ async function handleGoAction(ctx, match) {
     try {
         const user = await getOrCreateUser(ctx);
         const training = await Training.findById(trainingId);
-        const threadId = Number(process.env.GROUP_CHAT_THREAD_TRAINING);
         const groupId = process.env.GROUP_CHAT_ID;
 
         if (!training) {
@@ -152,11 +150,10 @@ async function handleGoAction(ctx, match) {
             await training.save();
             await user.save();
 
-            if (groupId && threadId) {
+            if (groupId) {
                 await bot.telegram.sendMessage(
                     process.env.GROUP_CHAT_ID,
                     `✅ @${ctx.from.username} відзначений на тренуванні.`,
-                    { message_thread_id: threadId }
                 );
             }
             actionCache.add(cacheKey);
@@ -225,10 +222,14 @@ const actionHandlersMap = {
     'add411_18': (ctx) => addTrainingHelper(ctx, '18:00', '411 Батарея'),
     'addILA_10': (ctx) => addTrainingHelper(ctx, '10:00', 'I❤️A'),
     'addLanzh_11': (ctx) => addTrainingHelper(ctx, '11:00', 'Ланжерон'),
+    'addWeekday': (ctx) => addTrainingHelper(ctx, '17:00', 'Меморіал 411'),
+    'addWeekend': (ctx) => addTrainingHelper(ctx, '15:00', 'Ланжерон'),
 
     'del411_18': (ctx) => deleteTrainingHelper(ctx, '18:00', '411 Батарея'),
     'delILA_10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'I❤️A'),
     'delLanzh_11': (ctx) => deleteTrainingHelper(ctx, '11:00', 'Ланжерон'),
+    'delWeekday': (ctx) => deleteTrainingHelper(ctx, '17:00', 'Меморіал 411'),
+    'delWeekend': (ctx) => deleteTrainingHelper(ctx, '15:00', 'Ланжерон'),
 
     'delAllWorkout': deleteAllUpcomingTrainings,
     'customWorkout': handleCustomWorkout,

@@ -27,9 +27,8 @@ const adminButtonActions = new Map([
     [getText('rateUsBtn'), handleRateUs],
     [getText('addWorkoutBtn'), handleAddWorkout],
     [getText('deleteWorkoutBtn'), handleDeleteWorkout],
-    [getText('sendWorkoutBtn'), handleSendWorkout],
     [getText('checkItBtn'), handleCheckIt],
-    [getText('remindEveryoneBtn'), handleRemind],
+
 ]);
 
 const userButtonActions = new Map([

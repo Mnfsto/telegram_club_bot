@@ -13,7 +13,6 @@ module.exports = function(bot) {
         console.log('Sending workout for:', formattedDate);
         const user = await getOrCreateUser(ctx);
         console.log(user.username);
-        const threadId = Number(process.env.GROUP_CHAT_THREAD_TRAINING);
 
         try {
 
@@ -30,7 +29,6 @@ module.exports = function(bot) {
                     process.env.GROUP_CHAT_ID,
                     `Тренування ${date} о ${time} ${location}`,
                     {
-                        message_thread_id: threadId,
                         reply_markup: Markup.inlineKeyboard([
                             Markup.button.callback("+", `go_${_id}`),
                             Markup.button.callback("-", `notgo_${_id}`)

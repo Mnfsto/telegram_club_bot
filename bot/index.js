@@ -43,8 +43,8 @@ const createHandleRemind = require('../bot/handlers/keyboardHandlers/handleRemin
 const createHandleSendWorkout = require('../bot/handlers/keyboardHandlers/handleSendWorkout.js');
 const handleSendWorkout = createHandleSendWorkout(bot);
 const handleRemind = createHandleRemind(bot);
-bot.hears('🗣️ Send a workout', checkAdmin, handleSendWorkout);
-bot.hears("📢 Remind everyone", checkAdmin, handleRemind);
+bot.hears('🗣️ Надіслати Анонс', checkAdmin, handleSendWorkout);
+bot.hears("📢 Нагадати Всім", checkAdmin, handleRemind);
 
 
 const { handleCallbackQuery } = require('./action')

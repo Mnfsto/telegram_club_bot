@@ -6,6 +6,8 @@ const keyboardDeleteWorkout = Markup.inlineKeyboard([
     [Markup.button.callback("Видалити Завтра 411 Б. 18:00", "del411_18")],
     [Markup.button.callback("Видалити Завтра I❤️A 10:00", "delILA_10")],
     [Markup.button.callback("Видалити Завтра Ланж. 11:00", "delLanzh_11")],
+    [Markup.button.callback("Видалити Завтра 17:00 411 Б.", "delWeekday")],
+    [Markup.button.callback("Видалити Завтра 15:00 Ланж.", "delWeekend")],
     [Markup.button.callback("Видалити Всі Тренування", "delAllWorkout")],
 ]);
 
