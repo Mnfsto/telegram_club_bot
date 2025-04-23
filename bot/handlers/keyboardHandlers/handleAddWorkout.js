@@ -3,14 +3,10 @@ const Training = require('../../../models/training');
 const {parseDate, formatDates} = require("../../utils/dateUtils"); // Assuming formatDates exists from previous examples
 
 const keyboardAddWorkout = Markup.inlineKeyboard([
-    [Markup.button.callback("Додати Завтра I❤️A 7:00", "addTomarrow7")],
-    [Markup.button.callback("Додати Завтра I❤️A 8:00", "addTomarrow8")],
-    [Markup.button.callback("Додати Завтра I❤️A 10:00", "addTomarrow10")],
-    [Markup.button.callback("Додати Завтра 🐽 8:00", "addHeel8")],
-    [Markup.button.callback("Додати Завтра 🐽 10:00", "addHeel10")],
-    [Markup.button.callback("Додати Завтра Кава 18:00", "addCoffe18")],
+    [Markup.button.callback("Додати Завтра 411 Б. 18:00", "add411_18")],
+    [Markup.button.callback("Додати Завтра I❤️A 10:00", "addILA_10")],
+    [Markup.button.callback("Додати Завтра Ланж. 11:00", "addLanzh_11")],
     [Markup.button.callback("Додати Вручну", "customWorkout")],
-
 ]);
 
 async function handleAddWorkout (ctx){

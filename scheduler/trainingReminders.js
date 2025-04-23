@@ -18,7 +18,7 @@ async function sendDailyRemindFirst () { // Removed ctx as it's not used
         const trainingsTomorrow = await Training.find({ date: formattedDate }).sort({ time: 1 });
         if (!trainingsTomorrow || trainingsTomorrow.length === 0) {
             console.log('Немає запланованих тренувань на завтра для анонсу.');
-            return; // Exit if no trainings
+            return;
         }
 
         let sentCount = 0;
@@ -82,7 +82,7 @@ async function sendDailyRemindSecond () { // Removed ctx as it's not used
 }
 
 
-async function sendDailyRemindMorning () { // Removed ctx as it's not used
+async function sendDailyRemindMorning () {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const formattedDate = formatDates ? formatDates(tomorrow) : `${tomorrow.getDate().toString().padStart(2, '0')}.${(tomorrow.getMonth() + 1).toString().padStart(2, '0')}.${tomorrow.getFullYear()}`;
@@ -138,7 +138,6 @@ async function sendDailyRemindMorning () { // Removed ctx as it's not used
     }
 }
 
-// Renamed functions for clarity when scheduling
 async function scheduleWorkoutAnnouncement() {
     console.log('Running scheduled job: scheduleWorkoutAnnouncement (18:02)');
     await sendDailyRemindFirst();
@@ -155,20 +154,20 @@ async function scheduleMorningUserReminder() {
 }
 
 
-async function scheduleReminders() { // Removed bot parameter as bot is imported directly
-    // Schedule evening group reminder (21:00 Kyiv time)
+async function scheduleReminders() {
+
     cron.schedule('0 21 * * *', scheduleEveningGroupReminder, {
         scheduled: true,
         timezone: 'Europe/Kiev'
     });
 
-    // Schedule morning individual user reminders (06:00 Kyiv time)
+
     cron.schedule('0 6 * * *', scheduleMorningUserReminder, {
         scheduled: true,
         timezone: 'Europe/Kiev'
     });
 
-    // Schedule initial workout announcement with buttons (18:02 Kyiv time)
+
     cron.schedule('2 18 * * *', scheduleWorkoutAnnouncement, {
         scheduled: true,
         timezone: 'Europe/Kiev'

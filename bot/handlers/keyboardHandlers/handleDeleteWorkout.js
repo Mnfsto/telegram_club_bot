@@ -3,12 +3,9 @@ const Training = require("../../../models/training");
 const {parseDate, formatDates} = require("../../utils/dateUtils");
 
 const keyboardDeleteWorkout = Markup.inlineKeyboard([
-    [Markup.button.callback("Видалити Завтра I❤️A 7:00", "delTomarrow7")],
-    [Markup.button.callback("Видалити Завтра I❤️A 8:00", "delTomarrow8")],
-    [Markup.button.callback("Видалити Завтра I❤️A 10:00", "delTomarrow10")],
-    [Markup.button.callback("Видалити Завтра 🐽 8:00", "delHeel8")],
-    [Markup.button.callback("Видалити Завтра 🐽 10:00", "delHeel10")],
-    [Markup.button.callback("Видалити Завтра Кава 18:00", "delCoffe18")],
+    [Markup.button.callback("Видалити Завтра 411 Б. 18:00", "del411_18")],
+    [Markup.button.callback("Видалити Завтра I❤️A 10:00", "delILA_10")],
+    [Markup.button.callback("Видалити Завтра Ланж. 11:00", "delLanzh_11")],
     [Markup.button.callback("Видалити Всі Тренування", "delAllWorkout")],
 ]);
 

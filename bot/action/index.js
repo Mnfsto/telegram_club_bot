@@ -222,18 +222,14 @@ const regexActionHandlers = [
 ];
 
 const actionHandlersMap = {
-    'addTomarrow7': (ctx) => addTrainingHelper(ctx, '07:00', 'I❤️Arcadia - ТЗ'),
-    'addTomarrow8': (ctx) => addTrainingHelper(ctx, '08:00', 'I❤️Arcadia - ТЗ'),
-    'addTomarrow10': (ctx) => addTrainingHelper(ctx, '10:00', 'I❤️Arcadia - ТЗ'),
-    'addHeel8': (ctx) => addTrainingHelper(ctx, '08:00', 'Маршал-Пятак 🐽'),
-    'addHeel10': (ctx) => addTrainingHelper(ctx, '10:00', 'Маршал-Пятак 🐽'),
-    'addCoffe18': (ctx) => addTrainingHelper(ctx, '18:00', 'I❤️Arcadia - ТЗ'),
-    'delTomarrow7': (ctx) => deleteTrainingHelper(ctx, '07:00', 'I❤️Arcadia - ТЗ'),
-    'delTomarrow8': (ctx) => deleteTrainingHelper(ctx, '08:00', 'I❤️Arcadia - ТЗ'),
-    'delTomarrow10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'I❤️Arcadia - ТЗ'),
-    'delHeel8': (ctx) => deleteTrainingHelper(ctx, '08:00', 'Маршал-Пятак 🐽'),
-    'delHeel10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'Маршал-Пятак 🐽'), // delHeel0 -> delHeel10
-    'delCoffe18': (ctx) => deleteTrainingHelper(ctx, '18:00', 'I❤️Arcadia - ТЗ'),
+    'add411_18': (ctx) => addTrainingHelper(ctx, '18:00', '411 Батарея'),
+    'addILA_10': (ctx) => addTrainingHelper(ctx, '10:00', 'I❤️A'),
+    'addLanzh_11': (ctx) => addTrainingHelper(ctx, '11:00', 'Ланжерон'),
+
+    'del411_18': (ctx) => deleteTrainingHelper(ctx, '18:00', '411 Батарея'),
+    'delILA_10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'I❤️A'),
+    'delLanzh_11': (ctx) => deleteTrainingHelper(ctx, '11:00', 'Ланжерон'),
+
     'delAllWorkout': deleteAllUpcomingTrainings,
     'customWorkout': handleCustomWorkout,
     'join_agree': handleJoinAgree,
