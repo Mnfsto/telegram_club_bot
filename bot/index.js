@@ -6,8 +6,8 @@ const Training = require('../models/training');
 const Certificate = require('../models/certificates');
 const { profileScene, PROFILE_SCENE_ID } = require('./scenes');
 const { activateCertScene, ACTIVATE_CERT_SCENE_ID } = require('./scenes/activateCertificate.scene');
-
-const stage = new Scenes.Stage([profileScene, activateCertScene]);
+const { adminMetadataScene, ADMIN_METADATA_SCENE_ID } = require('./scenes/adminMetadata.scene');
+const stage = new Scenes.Stage([profileScene, activateCertScene,adminMetadataScene]);
 bot.use(session());
 bot.use(stage.middleware());
 //User Authentication

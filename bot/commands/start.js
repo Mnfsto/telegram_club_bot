@@ -2,20 +2,30 @@ const User = require("../../models/user");
 const {Markup} = require("telegraf");
 const handleCertActivation = require("../handlers/keyboardHandlers/handleCertActivation");
 const Certificate = require('../../models/certificates');
+const { getText} = require('../../locales');
+
 
 async function startCommand (ctx){
+    const joinClubBtn = getText('joinClubBtn');
     const telegramId = ctx.from.id;
-    let certActive = await Certificate.findOne({redeemedBy: telegramId});
     let user = await User.findOne({ telegramId });
-    const changeBtn = (certActive !== null && certActive.redeemedBy == telegramId  ? "🚴 Next training": "Activate Certificate");
+    let dynamicButtonText = '';
+    try {
+        const certActive = await Certificate.findOne({ redeemedBy: telegramId, status: 'Погашен' }); // Ищем погашенный пользователем
+        const dynamicButtonKey = (certActive !== null) ? 'nextTrainingBtn' : 'activateCertBtn';
+        dynamicButtonText = getText(dynamicButtonKey);
+    } catch (error) {
+        console.error("Error checking certificate status for button:", error);
+        dynamicButtonText = getText('activateCertBtn'); // По умолчанию кнопка активации при ошибке
+    }
     const admin = process.env.ADMIN_CHAT_ID;
     if (telegramId == admin) {
         ctx.reply("Hello Admin",
             Markup.keyboard([
-                ["🚴 Add a Workout", "❌ Delete Workout"], // Row1 with 2 buttons
-                ["🗣️ Send a workout", "✔️ Check it"], // Row2 with 2 buttons
-                ["📢 Remind everyone", "🗓️ Training List", "👥 Share"], // Row3 with 3 buttons
-                ["Activate Certificate"],
+                [getText('addWorkoutBtn'), getText('deleteWorkoutBtn')],
+                [getText('sendWorkoutBtn'), getText('checkItBtn')],
+                [getText('remindEveryoneBtn'), getText('trainingListBtn'), getText('shareBtn')],
+                [getText('activateCertBtn')],
 
             ] )
                 .resize())
@@ -23,23 +33,11 @@ async function startCommand (ctx){
 
     } else{
 
-        ctx.reply('👋 Добро пожаловать в Arcadia Cycling Club!\n' +
-            '\n' +
-            'Я твой цифровой помощник, бот Pixel Fighter 🤖🚴‍♀️.\n' +
-            '\n' +
-            'Здесь ты сможешь:\n' +
-            '📅 Узнавать актуальное расписание тренировок\n' +
-            '✅ Записываться на заезды и зарабатывать "Пиксели"!\n' +
-            '🏆 Следить за своим местом в рейтинге "Борьба за Пиксели"\n' +
-            '🤝 Стать полноценной частью нашего дружного велосообщества.\n' +
-            '\n' +
-            'Используй кнопки внизу, чтобы узнать больше и присоединиться к нашим активностям! 👇\n' +
-            '\n' +
-            'Если ты здесь впервые, нажми \'🚴 Join Club 🚴\', чтобы ознакомиться с условиями и вступить!',
+        ctx.reply(getText('welcomeMessage'),
             Markup.keyboard([
-                ["🚴 Join Club 🚴", `${changeBtn}`],
-                ["🗓️ Training List", "📈 Rank"],
-                [ "⭐️ Rate us", "👥 Share"],
+                [getText('joinClubBtn'), dynamicButtonText],
+                [getText('trainingListBtn'), getText('rankBtn')],
+                [getText('rateUsBtn'), getText('shareBtn')],
             ])
                 .resize(),
 

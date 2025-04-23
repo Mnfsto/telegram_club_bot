@@ -1,10 +1,17 @@
-# Файл с секретами (токены, пароли, ключи API, строка подключения к БД)
+# File with secrets (tokens, passwords, API keys, database connection string)
 .env
 
-# Папка с зависимостями Node.js
+# Node.js dependencies folder
 node_modules/
 
-# Логи
+
+# Locales
+locales/golf_сlub/
+locales/cycling_сlub/
+locales/multi_sport/
+
+
+# Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -12,11 +19,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Файлы операционной системы
+#  Operating system files
 .DS_Store
 Thumbs.db
 
-# Файлы IDE
+# Files IDE
 .idea/
 .vscode/
 *.suo
@@ -25,11 +32,11 @@ Thumbs.db
 *.sln
 *.sw?
 
-# Временные файлы тестов
+# Temporary test files
 coverage/
 .nyc_output/
 
-# Файлы сборки
+# Assembly files
 # dist/
 # build/
 
