@@ -7,7 +7,8 @@ const Certificate = require('../models/certificates');
 const { profileScene, PROFILE_SCENE_ID } = require('./scenes');
 const { activateCertScene, ACTIVATE_CERT_SCENE_ID } = require('./scenes/activateCertificate.scene');
 const { adminMetadataScene, ADMIN_METADATA_SCENE_ID } = require('./scenes/adminMetadata.scene');
-const stage = new Scenes.Stage([profileScene, activateCertScene,adminMetadataScene]);
+const { golfApplicationScene, GOLF_APPLICATION_SCENE_ID } = require('./scenes/golfTrainingApplication.scene');
+const stage = new Scenes.Stage([profileScene, activateCertScene,adminMetadataScene,golfApplicationScene]);
 bot.use(session());
 bot.use(stage.middleware());
 //User Authentication

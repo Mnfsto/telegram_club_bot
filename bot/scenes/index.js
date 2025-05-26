@@ -4,6 +4,7 @@ const { getText } =  require('../../locales');
 
 const PROFILE_SCENE_ID = 'userProfile'; // Assuming you still export this ID if needed elsewhere
 
+
 const profileScene = new Scenes.BaseScene(PROFILE_SCENE_ID);
 
 profileScene.enter(async (ctx) => {

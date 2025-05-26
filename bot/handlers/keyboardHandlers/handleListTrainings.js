@@ -6,7 +6,7 @@ async function handleListTrainings (ctx){
 
     const now = new Date();
     const today = formatDates(now);
-    const tomorrowDay = new Date(now); // Create a new date object
+    const tomorrowDay = new Date(now);
     tomorrowDay.setDate(tomorrowDay.getDate() + 1);
     const tomorrow = formatDates(tomorrowDay);
 

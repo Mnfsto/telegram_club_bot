@@ -7,8 +7,8 @@ async function handleJoinClub (ctx) {
     if (user && user.joinedClub) {
         return ctx.reply(`Ви вже у клубі! Ось посилання на групу:\n${groupLink}`);
     }
-    const titlePolicy = getText('pixelFighterAgreementTitle')
-    const clubPolicy = getText('pixelFighterAgreementBody')
+    const titlePolicy = getText('clubAgreementTitle')
+    const clubPolicy = getText('clubAgreementBody')
 
     try {
         console.log('Відправляємо контракт з кнопками');

@@ -153,7 +153,7 @@ async function handleGoAction(ctx, match) {
             if (groupId) {
                 await bot.telegram.sendMessage(
                     process.env.GROUP_CHAT_ID,
-                    `✅ @${ctx.from.username} відзначений на тренуванні.`,
+                    `✅ @${ctx.from.username || user.name} відзначений на тренуванні.`,
                 );
             }
             actionCache.add(cacheKey);
@@ -219,17 +219,20 @@ const regexActionHandlers = [
 ];
 
 const actionHandlersMap = {
-    'add411_18': (ctx) => addTrainingHelper(ctx, '18:00', '411 Батарея'),
-    'addILA_10': (ctx) => addTrainingHelper(ctx, '10:00', 'I❤️A'),
-    'addLanzh_11': (ctx) => addTrainingHelper(ctx, '11:00', 'Ланжерон'),
-    'addWeekday': (ctx) => addTrainingHelper(ctx, '17:00', 'Меморіал 411'),
-    'addWeekend': (ctx) => addTrainingHelper(ctx, '15:00', 'Ланжерон'),
 
-    'del411_18': (ctx) => deleteTrainingHelper(ctx, '18:00', '411 Батарея'),
-    'delILA_10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'I❤️A'),
-    'delLanzh_11': (ctx) => deleteTrainingHelper(ctx, '11:00', 'Ланжерон'),
-    'delWeekday': (ctx) => deleteTrainingHelper(ctx, '17:00', 'Меморіал 411'),
-    'delWeekend': (ctx) => deleteTrainingHelper(ctx, '15:00', 'Ланжерон'),
+    'addLanzh_09': (ctx) => addTrainingHelper(ctx, '09:00', 'Ланжерон'),
+    'addLanzh_10': (ctx) => addTrainingHelper(ctx, '10:00', 'Ланжерон'),
+    'addLanzh_12': (ctx) => addTrainingHelper(ctx, '12:00', 'Ланжерон'),
+    'addLanzh_13': (ctx) => addTrainingHelper(ctx, '13:00', 'Ланжерон'),
+    'addLanzh_15': (ctx) => addTrainingHelper(ctx, '15:00', 'Ланжерон'),
+
+
+    'delLanzh_09': (ctx) => deleteTrainingHelper(ctx, '09:00', 'Ланжерон'),
+    'delLanzh_10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'Ланжерон'),
+    'delLanzh_12': (ctx) => deleteTrainingHelper(ctx, '12:00', 'Ланжерон'),
+    'delLanzh_13': (ctx) => deleteTrainingHelper(ctx, '13:00', 'Ланжерон'),
+    'delLanzh_15': (ctx) => deleteTrainingHelper(ctx, '15:00', 'Ланжерон'),
+
 
     'delAllWorkout': deleteAllUpcomingTrainings,
     'customWorkout': handleCustomWorkout,

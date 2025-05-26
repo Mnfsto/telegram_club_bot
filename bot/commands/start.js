@@ -38,7 +38,7 @@ async function startCommand (ctx){
             Markup.keyboard([
                 [getText('joinClubBtn'), dynamicButtonText],
                 [getText('trainingListBtn'), getText('rankBtn')],
-                [getText('rateUsBtn'), getText('shareBtn')],
+                [getText('trainingRegBtn'), getText('shareBtn')],
             ])
                 .resize().persistent(),
 

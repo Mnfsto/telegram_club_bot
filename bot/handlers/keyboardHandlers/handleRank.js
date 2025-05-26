@@ -5,7 +5,7 @@ const {getText} = require("../../../locales");
 async function handleRank(ctx) {
     try {
         const conditions = getText('rankHeaderText');
-
+        const rankPoint =  getText('rankPoint');
 
         const users = await User.find({ pixels: { $gt: 0 } })
             .sort({ pixels: -1 })
@@ -17,7 +17,7 @@ async function handleRank(ctx) {
 
         const rankingTable = users.map((user, index) => {
             const position = index + 1;
-            return `${position}. ${user.username || user.telegramId} — ${user.pixels} пікселів`;
+            return `${position}. ${user.username || user.telegramId} — ${user.pixels} ${rankPoint}`;
         }).join('\n');
 
 

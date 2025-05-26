@@ -10,6 +10,7 @@ const handleSendWorkout = require('./keyboardHandlers/handleSendWorkout');
 const handleRateUs = require('./keyboardHandlers/handleRateUs');
 const handleNextTraining = require('./keyboardHandlers/handleNextTraining');
 const handleCertActivation = require('./keyboardHandlers/handleCertActivation');
+const handleTrainingRegistration = require('./keyboardHandlers/handleTrainingRegistration');
 const { isAdmin } = require('../middlewares/auth.js');
 const { getText } =  require('../../locales');
 
@@ -17,14 +18,14 @@ const commonButtonActions = new Map([
     [getText('trainingListBtn'), handlerListTrainings],
     [getText('shareBtn'), handleShare],
     [getText('activateCertBtn'), handleCertActivation],
-    [getText('rateUsBtn'), handleRateUs],
+    [getText('trainingRegBtn'), handleTrainingRegistration],
 ]);
 
 const adminButtonActions = new Map([
     [getText('trainingListBtn'), handlerListTrainings],
     [getText('shareBtn'), handleShare],
     [getText('activateCertBtn'), handleCertActivation],
-    [getText('rateUsBtn'), handleRateUs],
+    [getText('trainingRegBtn'), handleTrainingRegistration],
     [getText('addWorkoutBtn'), handleAddWorkout],
     [getText('deleteWorkoutBtn'), handleDeleteWorkout],
     [getText('checkItBtn'), handleCheckIt],
@@ -35,7 +36,7 @@ const userButtonActions = new Map([
     [getText('trainingListBtn'), handlerListTrainings],
     [getText('shareBtn'), handleShare],
     [getText('activateCertBtn'), handleCertActivation],
-    [getText('rateUsBtn'), handleRateUs],
+    [getText('trainingRegBtn'), handleTrainingRegistration],
     [getText('rankBtn'), handleRank],
     [getText('joinClubBtn'), handleJoinClub],
     [getText('nextTrainingBtn'), handleNextTraining],
