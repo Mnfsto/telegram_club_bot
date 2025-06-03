@@ -11,7 +11,7 @@ const golfApplicationScene = new Scenes.BaseScene(GOLF_APPLICATION_SCENE_ID);
 
 const trainingInfo = {
     clubName: "ODESA GOLF CLUB",
-    title: "🏌️‍♂️ ДИТЯЧІ ТРЕНУВАННЯ",
+    title: "🏌️‍♂️ТРЕНУВАННЯ ДЛЯ ДІТЕЙ ТА ДОРОСЛИХ",
     scheduleDays: "Пн–Пт",
     scheduleTimes: "09:00–10:30 та 15:00–18:00",
     ageRange: "9–16 років",
@@ -239,14 +239,14 @@ timeSlots.forEach(slot => {
 
         let simpleConfMsg = getText('golfAppConfirmationHeader');
         if (state.applicantType === 'child') {
-            simpleConfMsg += `\n${getText('golfAppConfChildName', { childFullName: state.childFullName } )}`; // Передаем значение
-            simpleConfMsg += `\n${getText('golfAppConfChildAge', { childAge: state.childAge } )}`; // Передаем значение
+            simpleConfMsg += `\n${getText('golfAppConfChildName', { childFullName: state.childFullName } )}`;
+            simpleConfMsg += `\n${getText('golfAppConfChildAge', { childAge: state.childAge } )}`;
         } else {
-            simpleConfMsg += `\n${getText('golfAppConfAdultName', { applicantFullName: state.applicantFullName } )}`; // Передаем значение
+            simpleConfMsg += `\n${getText('golfAppConfAdultName', { applicantFullName: state.applicantFullName } )}`;
         }
-        simpleConfMsg += `\n${getText('golfAppConfPhone', { contactPhone: state.contactPhone } )}`; // Передаем значение
-        simpleConfMsg += `\n${getText('golfAppConfDay', { selectedDay: state.selectedDay } )}`; // Передаем значение
-        simpleConfMsg += `\n${getText('golfAppConfTime', { selectedTimeSlot: state.selectedTimeSlot } )}`; // Передаем значение
+        simpleConfMsg += `\n${getText('golfAppConfPhone', { contactPhone: state.contactPhone } )}`;
+        simpleConfMsg += `\n${getText('golfAppConfDay', { selectedDay: state.selectedDay } )}`;
+        simpleConfMsg += `\n${getText('golfAppConfTime', { selectedTimeSlot: state.selectedTimeSlot } )}`;
         simpleConfMsg += `\n\n${getText('golfAppConfCorrect')}`;
 
 
@@ -360,6 +360,9 @@ async function finalizeGolfApplication(ctx) {
                     adminMessageParams.filledBy = applicantUser.username ? `@${applicantUser.username}` : (applicantUser.name || `ID:${telegramId}`);
                     adminMessageText = getText('golfAppAdminNotifyAdult', adminMessageParams);
                 }
+                adminMessageText += `\n📅 Дата тренування: ${adminMessageParams.trainingDate}`;
+                adminMessageText += `\n⏰ Час тренування: ${adminMessageParams.trainingTime}`;
+
                 await ctx.telegram.sendMessage(adminChatId, adminMessageText);
                 console.log(`[GolfApp] Admin notification sent to ${adminChatId}`);
             } catch (adminNotifyError) {

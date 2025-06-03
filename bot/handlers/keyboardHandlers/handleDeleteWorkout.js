@@ -7,7 +7,7 @@ const keyboardDeleteWorkout = Markup.inlineKeyboard([
     [Markup.button.callback("Видалити Завтра Ланж. 12:00", "delLanzh_12"), Markup.button.callback("Видалити Завтра Ланж. 13:00", "delLanzh_13")],
     [Markup.button.callback("Видалити Завтра Ланж. 15:00", "delLanzh_15")],
     [Markup.button.callback("Видалити Всі Тренування", "delAllWorkout")],
-]);
+]);r
 
 async function handleDeleteWorkout(ctx) {
     ctx.reply(
