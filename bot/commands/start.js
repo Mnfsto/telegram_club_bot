@@ -16,7 +16,7 @@ async function startCommand (ctx){
         dynamicButtonText = getText(dynamicButtonKey);
     } catch (error) {
         console.error("Error checking certificate status for button:", error);
-        dynamicButtonText = getText('activateCertBtn'); // По умолчанию кнопка активации при ошибке
+        dynamicButtonText = getText('activateCertBtn');
     }
     const admin = process.env.ADMIN_CHAT_ID;
     if (telegramId == admin) {

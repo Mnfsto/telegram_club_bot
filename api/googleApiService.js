@@ -14,8 +14,8 @@ function getAuthClient(scopes) {
 }
 
 // --- Google Sheets ---
-const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID; // ID вашей таблицы из .env
-const SHEET_NAME = process.env.GOOGLE_SHEET_NAME || 'ЗаявкиГольф'; // Имя листа
+const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID;
+const SHEET_NAME = process.env.GOOGLE_SHEET_NAME || 'ЗаявкиГольф';
 
 async function appendToSheet(applicationData) {
     if (!SPREADSHEET_ID) {
@@ -30,11 +30,11 @@ async function appendToSheet(applicationData) {
         new Date().toLocaleString('uk-UA', { timeZone: 'Europe/Kiev' }),
         applicationData.applicantType === 'child' ? 'Дитина' : 'Дорослий',
         applicationData.applicantType === 'child' ? applicationData.childFullName : applicationData.applicantFullName,
-        applicationData.applicantType === 'child' ? applicationData.childAge : '', // Возраст только для ребенка
+        applicationData.applicantType === 'child' ? applicationData.childAge : '',
         applicationData.contactPhone,
         applicationData.selectedDay,
         applicationData.selectedTimeSlot,
-        applicationData.status || 'Нова', // Статус заявки
+        applicationData.status || 'Нова',
         applicationData.applicantTelegramId,
         applicationData.applicantUsername || ''
     ];
@@ -96,28 +96,32 @@ function getEventDateTime(selectedDayText, selectedTimeSlotText) {
     };
 }
 
-async function createCalendarEvent(applicationData) {
+async function createCalendarEvent(applicationData) { // applicationData теперь ДОЛЖЕН содержать eventStartDateTime и eventEndDateTime
+    console.log("[GoogleCalendar] createCalendarEvent called with data:", JSON.stringify(applicationData, null, 2));
+
     if (!CALENDAR_ID) {
         console.warn('[GoogleCalendar] CALENDAR_ID is not set. Skipping event creation.');
         return;
     }
-    console.log('[GoogleCalendar] Attempting to create event for:', applicationData);
+    // Проверяем наличие и валидность переданных дат
+    if (!(applicationData.eventStartDateTime instanceof Date) || isNaN(applicationData.eventStartDateTime.getTime())) {
+        console.error('[GoogleCalendar] Invalid or missing eventStartDateTime in applicationData:', applicationData.eventStartDateTime);
+        return;
+    }
+    if (!(applicationData.eventEndDateTime instanceof Date) || isNaN(applicationData.eventEndDateTime.getTime())) {
+        console.error('[GoogleCalendar] Invalid or missing eventEndDateTime in applicationData:', applicationData.eventEndDateTime);
+        return;
+    }
 
     const auth = getAuthClient(CALENDAR_SCOPES);
     const calendar = google.calendar({ version: 'v3', auth });
 
-    const eventTimes = getEventDateTime(applicationData.selectedDay, applicationData.selectedTimeSlot);
-    if (!eventTimes) {
-        console.error('[GoogleCalendar] Could not determine event date/time.');
-        return;
-    }
-
     let summary = '';
-    let description = `Заявка від: ${applicationData.applicantUsername || applicationData.applicantName || applicationData.applicantTelegramId}\nТелефон: ${applicationData.contactPhone}`;
+    let description = `Заявка від: ${applicationData.applicantUsername || applicationData.applicantName || applicationData.applicantTelegramId}\nТелефон: ${applicationData.contactPhone}\nОбрано: ${applicationData.selectedDayText || applicationData.selectedDay}, ${applicationData.selectedTimeSlotText || applicationData.selectedTimeSlot}`;
 
     if (applicationData.applicantType === 'child') {
         summary = `Гольф (дитина): ${applicationData.childFullName}`;
-        description += `\nДитина: ${applicationData.childFullName}, ${applicationData.childAge} років.`;
+        description += `\nДитина: ${applicationData.childFullName}${applicationData.childAge ? ', ' + applicationData.childAge + ' років' : ''}.`;
     } else {
         summary = `Гольф: ${applicationData.applicantFullName}`;
         description += `\nУчасник: ${applicationData.applicantFullName}.`;
@@ -126,8 +130,8 @@ async function createCalendarEvent(applicationData) {
     const event = {
         summary: summary,
         description: description,
-        start: eventTimes.start,
-        end: eventTimes.end,
+        start: { dateTime: applicationData.eventStartDateTime.toISOString(), timeZone: 'Europe/Kiev' },
+        end: { dateTime: applicationData.eventEndDateTime.toISOString(), timeZone: 'Europe/Kiev' },
         reminders: {
             useDefault: false,
             overrides: [
@@ -135,7 +139,6 @@ async function createCalendarEvent(applicationData) {
                 { method: 'popup', minutes: 24 * 60 },
             ],
         },
-
     };
 
     try {
@@ -148,6 +151,7 @@ async function createCalendarEvent(applicationData) {
         console.error('[GoogleCalendar] Error creating calendar event:', err.message);
     }
 }
+
 
 module.exports = {
     appendToSheet,

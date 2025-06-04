@@ -4,6 +4,7 @@ const GolfApplication = require('../../models/golfApplication');
 const { getOrCreateUser } = require('../middlewares/auth');
 const { getText } =  require('../../locales');
 const { appendToSheet, createCalendarEvent } = require('../../api/googleApiService');
+const { calculateAvailableDate } = require('../utils/dateUtils');
 
 const GOLF_APPLICATION_SCENE_ID = 'golfApplicationScene';
 
@@ -201,8 +202,17 @@ daysOfWeek.forEach(day => {
         state.selectedDay = day.text;
         state.selectedDayCallback = day.callback_data;
         console.log(`[GolfApp] User ${ctx.from.id} - Selected Day: ${state.selectedDay}`);
-
-        await ctx.answerCbQuery(`Обрано: ${day.text}`);
+        const tempTimeSlotForDateCalc = timeSlots[0].text
+        const nextDateTimes = calculateAvailableDate(state.selectedDay, tempTimeSlotForDateCalc);
+        let dateMessagePart = '';
+        if (nextDateTimes) {
+            state.preliminaryDate = nextDateTimes.startDate;
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Kiev' };
+            dateMessagePart = getText('golfAppDayApproximateDate', {
+                date: nextDateTimes.startDate.toLocaleDateString('uk-UA', dateOptions)
+            });
+        }
+        await ctx.answerCbQuery(`Обрано: ${day.text}${dateMessagePart}`);
         try {
             await ctx.editMessageReplyMarkup(undefined);
         } catch (e) { console.warn("Could not edit previous message reply markup for day selection.")}
@@ -212,7 +222,7 @@ daysOfWeek.forEach(day => {
         timeSlotButtons.push([Markup.button.callback(getText('cancelButton'), 'cancel_scene_golf_app')]);
 
         await ctx.reply(
-            getText('golfAppPromptTimeSlot', { day: state.selectedDay }),
+            getText('golfAppPromptTimeSlot', { day: state.selectedDay, dateInfo: dateMessagePart.trim() }),
             Markup.inlineKeyboard(timeSlotButtons)
         );
     });
@@ -231,22 +241,41 @@ timeSlots.forEach(slot => {
         state.selectedTimeSlot = slot.text;
         state.selectedTimeSlotCallback = slot.callback_data;
         console.log(`[GolfApp] User ${ctx.from.id} - Selected Time: ${state.selectedTimeSlot}`);
+        const finalDateTimes = calculateAvailableDate(state.selectedDay, state.selectedTimeSlot);
+        let finalDateTimeMessagePart = '';
+        if (finalDateTimes) {
+            state.finalCalculatedDate = finalDateTimes.startDate;
+            const dateTimeOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Kiev' };
+            finalDateTimeMessagePart = finalDateTimes.startDate.toLocaleString('uk-UA', dateTimeOptions);
+        } else {
+            finalDateTimeMessagePart = getText('golfAppDateTimeCalcError');
+        }
 
-        await ctx.answerCbQuery(`Обрано: ${slot.text}`);
+        await ctx.answerCbQuery(`Обрано: ${slot.text}. Орієнтовна дата: ${finalDateTimeMessagePart}`);
         try {
             await ctx.editMessageReplyMarkup(undefined);
         } catch (e) { console.warn("Could not edit previous message reply markup for time selection.")}
 
         let simpleConfMsg = getText('golfAppConfirmationHeader');
+        const params = {
+            childFullName: state.childFullName,
+            childAge: state.childAge,
+            applicantFullName: state.applicantFullName,
+            contactPhone: state.contactPhone,
+            selectedDay: state.selectedDay,
+            selectedTimeSlot: state.selectedTimeSlot,
+            calculatedDateTime: finalDateTimeMessagePart,
+        };
+
         if (state.applicantType === 'child') {
-            simpleConfMsg += `\n${getText('golfAppConfChildName', { childFullName: state.childFullName } )}`;
-            simpleConfMsg += `\n${getText('golfAppConfChildAge', { childAge: state.childAge } )}`;
+            simpleConfMsg += `\n${getText('golfAppConfChildName', params )}`;
+            simpleConfMsg += `\n${getText('golfAppConfChildAge', params )}`;
         } else {
-            simpleConfMsg += `\n${getText('golfAppConfAdultName', { applicantFullName: state.applicantFullName } )}`;
+            simpleConfMsg += `\n${getText('golfAppConfAdultName', params )}`;
         }
-        simpleConfMsg += `\n${getText('golfAppConfPhone', { contactPhone: state.contactPhone } )}`;
-        simpleConfMsg += `\n${getText('golfAppConfDay', { selectedDay: state.selectedDay } )}`;
-        simpleConfMsg += `\n${getText('golfAppConfTime', { selectedTimeSlot: state.selectedTimeSlot } )}`;
+        simpleConfMsg += `\n${getText('golfAppConfPhone', params )}`;
+        simpleConfMsg += `\n${getText('golfAppConfDayTime', params )}`;
+        simpleConfMsg += `\n${getText('golfAppConfCalculatedDate', params )}`;
         simpleConfMsg += `\n\n${getText('golfAppConfCorrect')}`;
 
 
@@ -310,11 +339,10 @@ async function finalizeGolfApplication(ctx) {
     console.log(`[GolfApp] Finalizing application for user ${telegramId}, type: ${state.applicantType}`);
     console.log("[GolfApp] Current state data for finalization:", JSON.stringify(state, null, 2));
 
-
     try {
         const applicantUser = await getOrCreateUser(ctx);
 
-        const applicationDetails = {
+        const applicationDetailsToSave = {
             applicantTelegramId: telegramId,
             applicantUsername: applicantUser.username,
             applicantName: applicantUser.name,
@@ -326,43 +354,85 @@ async function finalizeGolfApplication(ctx) {
         };
 
         if (state.applicantType === 'child') {
-            applicationDetails.childFullName = state.childFullName;
-            applicationDetails.childAge = state.childAge;
+            applicationDetailsToSave.childFullName = state.childFullName;
+            applicationDetailsToSave.childAge = state.childAge;
         } else {
-            applicationDetails.applicantFullName = state.applicantFullName;
+            applicationDetailsToSave.applicantFullName = state.applicantFullName;
         }
 
-        const newApplication = new GolfApplication(applicationDetails);
-        await newApplication.save();
+        if (state.finalCalculatedDate instanceof Date && !isNaN(state.finalCalculatedDate)) {
+            applicationDetailsToSave.calculatedTrainingDate = state.finalCalculatedDate;
+        }
 
+        const newApplication = new GolfApplication(applicationDetailsToSave);
+        await newApplication.save();
         console.log(`[GolfApp] New golf application saved: ${newApplication._id}`);
-        appendToSheet(applicationDetails).catch(err => console.error("Error in appendToSheet promise:", err));
-        createCalendarEvent(applicationDetails).catch(err => console.error("Error in createCalendarEvent promise:", err));
+
+        const fullApplicationDataForServices = {
+            ...applicationDetailsToSave,
+            idForDisplay: newApplication._id.toString().slice(-6),
+            applicantTGName: applicantUser.name,
+            applicantTGUsername: applicantUser.username,
+            applicationDateFormatted: newApplication.createdAt.toLocaleString('uk-UA', { timeZone: 'Europe/Kiev' }),
+            calculatedDateTimeFormatted: state.finalCalculatedDate instanceof Date && !isNaN(state.finalCalculatedDate)
+                ? state.finalCalculatedDate.toLocaleString('uk-UA', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Kiev' })
+                : getText('golfAppDateTimeCalcErrorForUser')
+        };
+
+        appendToSheet(fullApplicationDataForServices).catch(err => console.error("Error in appendToSheet promise:", err));
+
+        if (state.finalCalculatedDate instanceof Date && !isNaN(state.finalCalculatedDate)) {
+            let eventEndDate = new Date(state.finalCalculatedDate);
+            const [, endTimeStrWithLabel] = state.selectedTimeSlot.split('–');
+            const endTimeStr = endTimeStrWithLabel.split('(')[0].trim();
+            const [endHour, endMinute] = endTimeStr.split(':').map(Number);
+
+            if (!isNaN(endHour) && !isNaN(endMinute)) {
+                eventEndDate.setHours(endHour, endMinute, 0, 0);
+
+                createCalendarEvent({
+                    applicantType: state.applicantType,
+                    childFullName: state.childFullName,
+                    applicantFullName: state.applicantFullName,
+                    contactPhone: state.contactPhone,
+                    applicantUsername: applicantUser.username,
+                    applicantName: applicantUser.name,
+                    applicantTelegramId: telegramId,
+                    eventStartDateTime: state.finalCalculatedDate,
+                    eventEndDateTime: eventEndDate,
+                    selectedDayText: state.selectedDay,
+                    selectedTimeSlotText: state.selectedTimeSlot,
+                }).catch(err => console.error("Error in createCalendarEvent promise:", err));
+            } else {
+                console.warn("[GolfApp] Could not parse end time for calendar event from slot:", state.selectedTimeSlot);
+            }
+        } else {
+            console.warn("[GolfApp] finalCalculatedDate is not valid for calendar event creation.");
+        }
+
         if (adminChatId) {
             try {
                 let adminMessageText;
-                const adminMessageParams = {
-                    id: newApplication._id.toString().slice(-6),
+                const adminParams = {
+                    id: fullApplicationDataForServices.idForDisplay,
                     selectedDay: state.selectedDay,
                     selectedTimeSlot: state.selectedTimeSlot,
-                    applicationDate: newApplication.createdAt.toLocaleString('uk-UA', { timeZone: 'Europe/Kiev' })
+                    applicationDate: fullApplicationDataForServices.applicationDateFormatted,
+                    calculatedDateTime: fullApplicationDataForServices.calculatedDateTimeFormatted
                 };
 
                 if (state.applicantType === 'child') {
-                    adminMessageParams.applicant = applicantUser.username ? `@${applicantUser.username}` : (applicantUser.name || `ID:${telegramId}`);
-                    adminMessageParams.childFullName = state.childFullName;
-                    adminMessageParams.childAge = state.childAge;
-                    adminMessageParams.parentPhone = state.contactPhone;
-                    adminMessageText = getText('golfAppAdminNotifyChild', adminMessageParams);
+                    adminParams.applicant = applicantUser.username ? `@${applicantUser.username}` : (applicantUser.name || `ID:${telegramId}`);
+                    adminParams.childFullName = state.childFullName;
+                    adminParams.childAge = state.childAge;
+                    adminParams.parentPhone = state.contactPhone;
+                    adminMessageText = getText('golfAppAdminNotifyChild', adminParams);
                 } else {
-                    adminMessageParams.applicantFullName = state.applicantFullName;
-                    adminMessageParams.contactPhone = state.contactPhone;
-                    adminMessageParams.filledBy = applicantUser.username ? `@${applicantUser.username}` : (applicantUser.name || `ID:${telegramId}`);
-                    adminMessageText = getText('golfAppAdminNotifyAdult', adminMessageParams);
+                    adminParams.applicantFullName = state.applicantFullName;
+                    adminParams.contactPhone = state.contactPhone;
+                    adminParams.filledBy = applicantUser.username ? `@${applicantUser.username}` : (applicantUser.name || `ID:${telegramId}`);
+                    adminMessageText = getText('golfAppAdminNotifyAdult', adminParams);
                 }
-                adminMessageText += `\n📅 Дата тренування: ${adminMessageParams.trainingDate}`;
-                adminMessageText += `\n⏰ Час тренування: ${adminMessageParams.trainingTime}`;
-
                 await ctx.telegram.sendMessage(adminChatId, adminMessageText);
                 console.log(`[GolfApp] Admin notification sent to ${adminChatId}`);
             } catch (adminNotifyError) {
@@ -372,17 +442,13 @@ async function finalizeGolfApplication(ctx) {
             console.warn("[GolfApp] GOLF_ADMIN_CHAT_ID or ADMIN_CHAT_ID not set. Skipping admin notification.");
         }
 
-        const userSuccessMessageParams = {};
-        if (state.applicantType === 'child') {
-            userSuccessMessageParams.personName = state.childFullName;
-        } else {
-            userSuccessMessageParams.personName = state.applicantFullName;
-        }
-        userSuccessMessageParams.day = state.selectedDay;
-        userSuccessMessageParams.time = state.selectedTimeSlot;
-
-        await ctx.reply(getText('golfAppSuccessUser', userSuccessMessageParams));
-
+        const userSuccessMessageParams = {
+            personName: state.applicantType === 'child' ? state.childFullName : state.applicantFullName,
+            day: state.selectedDay,
+            time: state.selectedTimeSlot,
+            calculatedDateTime: fullApplicationDataForServices.calculatedDateTimeFormatted
+        };
+        await ctx.reply(getText('golfAppSuccessUserWithDate', userSuccessMessageParams));
 
     } catch (dbError) {
         console.error(`[GolfApp] Database error during finalization for user ${telegramId}:`, dbError);

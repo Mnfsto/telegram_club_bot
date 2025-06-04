@@ -11,7 +11,8 @@ const golfApplicationSchema = new mongoose.Schema({
     contactPhone: { type: String, required: true },
     selectedDay: { type: String, required: true },
     selectedTimeSlot: { type: String, required: true },
-    status: {
+    calculatedTrainingDate: { type: Date},
+        status: {
         type: String,
         enum: ['Нова', 'В обробці', 'Підтверджена', 'Скасована'],
         default: 'Нова'
