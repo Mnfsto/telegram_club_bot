@@ -1,7 +1,7 @@
 function parseDate(dateStr) {
     const [day, month, year] = dateStr.split('.').map(Number);
     if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
-    return new Date(year, month - 1, day); // month - 1, так как в JS месяцы с 0
+    return new Date(year, month - 1, day);
 }
 
 function formatDates(date) {

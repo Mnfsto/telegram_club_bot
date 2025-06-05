@@ -207,7 +207,7 @@ daysOfWeek.forEach(day => {
         let dateMessagePart = '';
         if (nextDateTimes) {
             state.preliminaryDate = nextDateTimes.startDate;
-            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Kiev' };
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric',  };
             dateMessagePart = getText('golfAppDayApproximateDate', {
                 date: nextDateTimes.startDate.toLocaleDateString('uk-UA', dateOptions)
             });
