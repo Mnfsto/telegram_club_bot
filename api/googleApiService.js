@@ -103,7 +103,7 @@ async function createCalendarEvent(applicationData) { // applicationData теп�
         console.warn('[GoogleCalendar] CALENDAR_ID is not set. Skipping event creation.');
         return;
     }
-    // Проверяем наличие и валидность переданных дат
+
     if (!(applicationData.eventStartDateTime instanceof Date) || isNaN(applicationData.eventStartDateTime.getTime())) {
         console.error('[GoogleCalendar] Invalid or missing eventStartDateTime in applicationData:', applicationData.eventStartDateTime);
         return;
@@ -130,8 +130,8 @@ async function createCalendarEvent(applicationData) { // applicationData теп�
     const event = {
         summary: summary,
         description: description,
-        start: { dateTime: applicationData.eventStartDateTime.toISOString(), timeZone: 'Europe/Kiev' },
-        end: { dateTime: applicationData.eventEndDateTime.toISOString(), timeZone: 'Europe/Kiev' },
+        start: { dateTime: applicationData.eventStartDateTime.toISOString() },
+        end: { dateTime: applicationData.eventEndDateTime.toISOString() },
         reminders: {
             useDefault: false,
             overrides: [
