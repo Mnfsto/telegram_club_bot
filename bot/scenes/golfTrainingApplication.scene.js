@@ -375,7 +375,7 @@ async function finalizeGolfApplication(ctx) {
             applicantTGUsername: applicantUser.username,
             applicationDateFormatted: newApplication.createdAt.toLocaleString('uk-UA', { timeZone: 'Europe/Kiev' }),
             calculatedDateTimeFormatted: state.finalCalculatedDate instanceof Date && !isNaN(state.finalCalculatedDate)
-                ? state.finalCalculatedDate.toLocaleString('uk-UA', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                ? state.finalCalculatedDate.toLocaleString('uk-UA', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Kiev' })
                 : getText('golfAppDateTimeCalcErrorForUser')
         };
 
