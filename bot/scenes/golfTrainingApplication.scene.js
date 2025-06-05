@@ -207,7 +207,7 @@ daysOfWeek.forEach(day => {
         let dateMessagePart = '';
         if (nextDateTimes) {
             state.preliminaryDate = nextDateTimes.startDate;
-            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric',  };
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Kiev' };
             dateMessagePart = getText('golfAppDayApproximateDate', {
                 date: nextDateTimes.startDate.toLocaleDateString('uk-UA', dateOptions)
             });
@@ -375,7 +375,7 @@ async function finalizeGolfApplication(ctx) {
             applicantTGUsername: applicantUser.username,
             applicationDateFormatted: newApplication.createdAt.toLocaleString('uk-UA', { timeZone: 'Europe/Kiev' }),
             calculatedDateTimeFormatted: state.finalCalculatedDate instanceof Date && !isNaN(state.finalCalculatedDate)
-                ? state.finalCalculatedDate.toLocaleString('uk-UA', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Kiev' })
+                ? state.finalCalculatedDate.toLocaleString('uk-UA', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                 : getText('golfAppDateTimeCalcErrorForUser')
         };
 
