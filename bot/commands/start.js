@@ -11,7 +11,7 @@ async function startCommand (ctx){
     let user = await User.findOne({ telegramId });
     let dynamicButtonText = '';
     try {
-        const certActive = await Certificate.findOne({ redeemedBy: telegramId, status: 'Погашен' }); // Ищем погашенный пользователем
+        const certActive = await Certificate.findOne({ redeemedBy: telegramId, status: 'Погашен' });
         const dynamicButtonKey = (certActive !== null) ? 'nextTrainingBtn' : 'activateCertBtn';
         dynamicButtonText = getText(dynamicButtonKey);
     } catch (error) {

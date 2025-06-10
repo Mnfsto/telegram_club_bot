@@ -17,7 +17,7 @@ const trainingInfo = {
     scheduleTimes: "09:00–10:30 та 15:00–18:00",
     ageRange: "9–16 років",
     location: "Ланжерон",
-    note: "За попередньою заявкою"
+    note: "За попередньою заявкою або по телефону 063 377 71 99"
 };
 
 const getTrainingInfoTextForChild = () => {
