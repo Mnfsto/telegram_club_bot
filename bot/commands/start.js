@@ -52,7 +52,7 @@ async function startCommand (ctx){
             telegramId,
             name: ctx.from.first_name,
             username: ctx.from.username,
-            role: process.env.ADMIN_CHAT_IDS.split(',').includes(telegramId.toString()) ? 'admin' : 'user',  // Simple admin check
+            role: process.env.ADMIN_CHAT_IDS.split(',').includes(telegramId.toString()) ? 'admin' : 'user',
         });
         console.log(ctx.from);
         await user.save();

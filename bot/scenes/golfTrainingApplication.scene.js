@@ -12,9 +12,9 @@ const golfApplicationScene = new Scenes.BaseScene(GOLF_APPLICATION_SCENE_ID);
 
 const trainingInfo = {
     clubName: "ODESA GOLF CLUB",
-    title: "🏌️‍♂️ТРЕНУВАННЯ ДЛЯ ДІТЕЙ ТА ДОРОСЛИХ",
+    title: "🏌️‍♂️ТРЕНУВАННЯ ДЛЯ ДІТЕЙ ТА ДОРОСЛИХ. Перше тренування за 100 грн та \"Наступні тренування\" за 700 грн (350 грн для членів клубу)",
     scheduleDays: "Пн–Пт",
-    scheduleTimes: "09:00–10:30 та 15:00–18:00",
+    scheduleTimes: "07:00–19:00",
     ageRange: "9–16 років",
     location: "Ланжерон",
     note: "За попередньою заявкою або по телефону 063 377 71 99"
@@ -29,7 +29,7 @@ const getTrainingInfoTextForChild = () => {
 };
 
 const getGeneralTrainingInfoText = () => {
-    return `${trainingInfo.clubName}\n🏌️‍♂️ ТРЕНУВАННЯ З ГОЛЬФУ\n` +
+    return `${trainingInfo.clubName}\n🏌️‍♂️ ТРЕНУВАННЯ З ГОЛЬФУ\n Перше тренування за 100 грн та \"Наступні тренування\" за 700 грн (350 грн для членів клубу)\n` +
         `📆 Дні: ${trainingInfo.scheduleDays}\n` +
         `⏰ Час: ${trainingInfo.scheduleTimes}\n` +
         `📍 Локація: ${trainingInfo.location}\n` +
@@ -45,8 +45,14 @@ const daysOfWeek = [
 ];
 
 const timeSlots = [
-    { text: '09:00–10:30 (Ранок)', callback_data: 'golf_time_morning' },
-    { text: '15:00–18:00 (Вечір)', callback_data: 'golf_time_evening' },
+    { text: '07:00–08:00 (Ранок)', callback_data: 'golf_time_morning' },
+    { text: '08:00–09:00 (Ранок)', callback_data: 'golf_time_morning' },
+    { text: '10:00–11:00 (Ранок)', callback_data: 'golf_time_morning' },
+    { text: '11:00–12:00 (Ранок)', callback_data: 'golf_time_morning' },
+    { text: '15:00–16:00 (Вечір)', callback_data: 'golf_time_evening' },
+    { text: '16:00–17:00 (Вечір)', callback_data: 'golf_time_evening' },
+    { text: '17:00–18:00 (Вечір)', callback_data: 'golf_time_evening' },
+    { text: '18:00–19:00 (Вечір)', callback_data: 'golf_time_evening' },
 ];
 
 golfApplicationScene.enter(async (ctx) => {
