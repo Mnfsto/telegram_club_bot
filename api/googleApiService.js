@@ -28,15 +28,16 @@ async function appendToSheet(applicationData) {
     const sheets = google.sheets({ version: 'v4', auth });
     const rowValues = [
         new Date().toLocaleString('uk-UA', { timeZone: 'Europe/Kiev' }),
-        applicationData.applicantType === 'child' ? 'Дитина' : 'Дорослий',
         applicationData.applicantType === 'child' ? applicationData.childFullName : applicationData.applicantFullName,
-        applicationData.applicantType === 'child' ? applicationData.childAge : '',
         applicationData.contactPhone,
+        'Telegram_bot',
+        applicationData.applicantTelegramId,
+        applicationData.applicantUsername || '',
+        applicationData.status || 'Нова',
+        applicationData.applicantType === 'child' ? 'Дитина' : 'Дорослий',
+        applicationData.applicantType === 'child' ? applicationData.childAge : '',
         applicationData.selectedDay,
         applicationData.selectedTimeSlot,
-        applicationData.status || 'Нова',
-        applicationData.applicantTelegramId,
-        applicationData.applicantUsername || ''
     ];
 
     try {
@@ -60,7 +61,7 @@ function getEventDateTime(selectedDayText, selectedTimeSlotText) {
 
     const now = new Date();
     let eventStartDate = new Date();
-    const daysMap = { 'Понеділок': 1, 'Вівторок': 2, 'Середа': 3, 'Четвер': 4, 'П\'ятниця': 5 };
+    const daysMap = { 'Понеділок': 1, 'Вівторок': 2, 'Середа': 3, 'Четвер': 4, 'П\'ятниця': 5, 'Субота': 6, 'Неділя': 0 };
     const targetDayOfWeek = daysMap[selectedDayText];
 
     if (!targetDayOfWeek) return null;

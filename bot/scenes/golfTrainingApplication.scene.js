@@ -42,6 +42,8 @@ const daysOfWeek = [
     { text: 'Середа', callback_data: 'golf_day_wed' },
     { text: 'Четвер', callback_data: 'golf_day_thu' },
     { text: 'П\'ятниця', callback_data: 'golf_day_fri' },
+    { text: 'Субота', callback_data: 'golf_day_sut' },
+    { text: 'Неділя', callback_data: 'golf_day_sun' },
 ];
 
 const timeSlots = [
