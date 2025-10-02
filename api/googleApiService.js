@@ -36,7 +36,8 @@ async function appendToSheet(applicationData) {
         applicationData.status || 'Нова',
         applicationData.applicantType === 'child' ? 'Дитина' : 'Дорослий',
         applicationData.applicantType === 'child' ? applicationData.childAge : '',
-        applicationData.selectedDay,
+        //applicationData.selectedDay,
+        applicationData.calculatedDateTimeFormatted,
         applicationData.selectedTimeSlot,
     ];
 
