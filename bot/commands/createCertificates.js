@@ -20,7 +20,7 @@ async function createBatchCertificates(codes, commonData) {
         nominal: commonData.nominal,
         currency: commonData.currency,
         expiresAt: commonData.expiresAt,
-        status: 'Активен',
+        status: 'Активний',
 
     }));
 

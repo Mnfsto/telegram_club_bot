@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
         required: false,
         trim: true
     },
+    bikeType: { type: String, required: false },
+    emergencyContact: { type: String, required: false },
+    strava: { type: String, required: false },
+    instagram: { type: String, required: false },
     role: { type: String, enum: ['admin', 'user'], default: 'user' },
     pixels: { type: Number, default: 0 },
     joinedClub: {type: Boolean, default: false}

@@ -7,7 +7,8 @@ const Certificate = require('../models/certificates');
 const { profileScene, PROFILE_SCENE_ID } = require('./scenes');
 const { activateCertScene, ACTIVATE_CERT_SCENE_ID } = require('./scenes/activateCertificate.scene');
 const { adminMetadataScene, ADMIN_METADATA_SCENE_ID } = require('./scenes/adminMetadata.scene');
-const stage = new Scenes.Stage([profileScene, activateCertScene,adminMetadataScene]);
+const { joinClubWizard } = require('./scenes/joinClub.scene');
+const stage = new Scenes.Stage([profileScene, activateCertScene, adminMetadataScene, joinClubWizard]);
 bot.use(session());
 bot.use(stage.middleware());
 //User Authentication
@@ -57,7 +58,7 @@ bot.on('message', async (ctx, next) => {
     const threadId = ctx.message.message_thread_id;
     const telegramId = ctx.from.id;
 
-    console.log(`Получено сообщение из чата ${chatId} - ${threadId}: ${messageText}`);
+    console.log(`Отримано повідомлення з чату ${chatId} - ${threadId}: ${messageText}`);
 
     if (chatType === 'group' || chatType === 'supergroup') {
         const user = await getOrCreateUser(ctx);

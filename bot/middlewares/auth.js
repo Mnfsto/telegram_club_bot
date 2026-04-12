@@ -44,7 +44,7 @@ async function checkAdmin(ctx, next) {
     if (user && user.role === 'admin') {
         await next();
     } else {
-        ctx.reply('У вас нет прав для выполнения этой команды.');
+        ctx.reply('У вас немає прав для виконання цієї команди.');
     }
 
 }

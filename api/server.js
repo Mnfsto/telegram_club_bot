@@ -29,7 +29,7 @@ function setupApiServer(botInstance){
         const { name, phone, email } = req.body;
         const message = `Новая заявка! \n Name: ${name} \n Phone: ${phone} \n Email: ${email}`;
         try {
-            // Сохраняем в БД
+            // Save to Database
             const newMember = new ApplicationMember({ name, phone, email });
             await newMember.save();
             console.log("New application saved:", newMember);
@@ -40,7 +40,7 @@ function setupApiServer(botInstance){
             } else {
                 console.warn("Bot instance or ADMIN_CHAT_ID not available for notification");
             }
-            res.status(201).json({ message: 'Заявка отправлена и сохранена' }); // Используем 201 Created
+            res.status(201).json({ message: 'Application sent and saved' }); // Use 201 Created
         } catch (err) {
             console.error('API failed to process application:', err);
             res.status(500).json({ message: 'Failed to process application' });
@@ -53,7 +53,7 @@ function setupApiServer(botInstance){
             res.sendFile(projectRoot + '/index.html');
         } catch (err) {
             console.error("Error sending index.html:", err);
-            res.status(404).send("Not Found"); // Или 500
+            res.status(404).send("Not Found");
         }
 
 
@@ -68,7 +68,7 @@ function setupApiServer(botInstance){
             const newMember = new ApplicationMember({name, phone, email});
             await newMember.save();
             console.log(message)
-            res.status(200).send({message: 'Заявка отправлена'})
+            res.status(200).send({message: 'Application sent'})
         } catch (err) {
             console.error('failed to send an application from the site');
             console.log(err);

@@ -21,28 +21,28 @@ async function trainingListCommand (ctx){
         // Filter for tomorrow's trainings
         const nextTrainingsTomorrow = trainingsFromToday.filter(training => training.date === tomorrow);
 
-        // Check if there are no trainings for today or tomorrow
+        let message = '📅 <b>Регулярний розклад (Школа Pixel Fighter):</b>\n';
+        message += 'Вівторок, Четвер: 16:00 - 18:00\nЗапис через сайт або бот.\n\n';
+        message += '🆕 <b>Найближчі клубні заїзди та змагання:</b>\n';
         if (nextTrainings.length === 0 && nextTrainingsTomorrow.length === 0) {
-            return ctx.reply('Немає запланованих тренувань.'); // Translation
+            message += 'Немає додаткових подій на сьогодні чи завтра.\n';
         }
-
-        let message = 'Розклад тренувань:\n'; // Translation
         if (nextTrainings.length > 0) {
             message += '\nСьогодні:\n'; // Add header for today
             nextTrainings.forEach(t => {
-                message += `📅 ${t.date} о ${t.time}, 📍 ${t.location}\n`; // Translation: 'в' -> 'о'
+                message += `📅 ${t.date} о ${t.time}, 📍 ${t.location}\n`;
             });
         }
 
         if (nextTrainingsTomorrow.length > 0) {
             message += '\nЗавтра:\n'; // Add header for tomorrow
             nextTrainingsTomorrow.forEach(t => {
-                message += `📅 ${t.date} о ${t.time}, 📍 ${t.location}\n`; // Translation: 'в' -> 'о'
+                message += `📅 ${t.date} о ${t.time}, 📍 ${t.location}\n`;
             });
         }
 
-        // Send the compiled message
-        ctx.reply(message);
+        // Send the compiled message (with HTML parsing for bold text)
+        ctx.reply(message, { parse_mode: 'HTML' });
 
     } catch (err){
         console.error('failed checkin training'); // Keep English log

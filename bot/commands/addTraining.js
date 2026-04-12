@@ -3,11 +3,11 @@ const Training = require('../../models/training');
 async function addTrainingCommand(ctx){
     const [_, date, time, ...locationArr] = ctx.message.text.split(' ');
     const location = locationArr.join(' ');
-    if (!date || !time || !location) return ctx.reply('Використання: /addtraining ДД.ММ.ГГГГ ЧЧ:ММ Место');
+    if (!date || !time || !location) return ctx.reply('Використання: /addtraining ДД.ММ.РРРР ГГ:ХХ Місце');
     try {
         const newTraining = new Training({date, time, location, participants: []});
         await newTraining.save();
-        ctx.reply(`Тренування додано: ${date} в ${time} Локація ${location}`);
+        ctx.reply(`Тренування додано: ${date} о ${time}, Локація: ${location}`);
     }  catch (err){
         console.error('failed add training');
         console.log(err);

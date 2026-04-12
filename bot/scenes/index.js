@@ -186,7 +186,7 @@ profileScene.on('text', async (ctx) => {
 // Handler for non-text messages
 profileScene.on('message', async (ctx) => {
     await ctx.reply(
-        getText('profileOnlyTextAllowed'), // Add this key to texts.json: "Будь ласка, використовуйте лише текстові повідомлення для відповідей або натисніть 'Скасувати'."
+        getText('profileOnlyTextAllowed'), // Translation: "Please use text messages only or click 'Cancel'."
         Markup.inlineKeyboard([Markup.button.callback(getText('cancelButton'), 'cancel_scene')])
     );
 });

@@ -3,12 +3,11 @@ const Training = require('../../../models/training');
 const {parseDate, formatDates} = require("../../utils/dateUtils"); // Assuming formatDates exists from previous examples
 
 const keyboardAddWorkout = Markup.inlineKeyboard([
-    [Markup.button.callback("Додати Завтра 411 Б. 18:00", "add411_18")],
-    [Markup.button.callback("Додати Завтра I❤️A 10:00", "addILA_10")],
-    [Markup.button.callback("Додати Завтра Ланж. 11:00", "addLanzh_11")],
-    [Markup.button.callback("Додати Завтра  17:00 411 Б.", "addWeekday")],
-    [Markup.button.callback("Додати Завтра  15:00 Ланж.", "addWeekend")],
-    [Markup.button.callback("Додати Вручну", "customWorkout")],
+    [Markup.button.callback("Ланжерон 🌊 10:00", "add_l_10"), Markup.button.callback("11:00", "add_l_11"), Markup.button.callback("12:00", "add_l_12")],
+    [Markup.button.callback("Санаторій-Аркадія 🏥 10:00", "add_s_10"), Markup.button.callback("11:00", "add_s_11"), Markup.button.callback("12:00", "add_s_12")],
+    [Markup.button.callback("ТЗ-Аркадія 🏃‍♂️ 07:00", "add_tz_07"), Markup.button.callback("08:00", "add_tz_08"), Markup.button.callback("09:00", "add_tz_09")],
+    [Markup.button.callback("411-Батарея ⚔️ 17:00", "add_411_17"), Markup.button.callback("18:00", "add_411_18")],
+    [Markup.button.callback("➕ Додати Вручну", "customWorkout")],
 ]);
 
 async function handleAddWorkout (ctx){

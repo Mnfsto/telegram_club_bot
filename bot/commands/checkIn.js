@@ -1,8 +1,9 @@
 const User = require("../../models/user");
 const Training = require('../../models/training');
+const { awardPixels } = require('../utils/pixelSystem');
  async function checkInCommand (ctx) {
     try {
-        const args = ctx.message.text.split(' ').slice(1); // Убираем "/checkin"
+        const args = ctx.message.text.split(' ').slice(1); // Remove "/checkin"
         if (args.length < 3) {
             return ctx.reply('Використовуйте: /checkin DD.MM.YYYY HH:MM @username');
         }
@@ -27,7 +28,7 @@ const Training = require('../../models/training');
 
         const training = await Training.findOne({ date, time });
         if (!training) {
-            return ctx.reply(`Тренування ${date} в ${time} не знайдено.`);
+            return ctx.reply(`Тренування ${date} о ${time} не знайдено.`);
         }
 
 
@@ -40,7 +41,11 @@ const Training = require('../../models/training');
         training.participants.push(userId);
         await training.save();
 
-        ctx.reply(`✅ ${username} відзначений на тренуванні ${date} в ${time}.`);
+        // Award pixels
+        const points = training.type === 'competition' ? 5 : 1;
+        await awardPixels(user, points, ctx.telegram, user.telegramId);
+
+        ctx.reply(`✅ ${username} відзначений(а) на подію ${date} о ${time}. Нараховано ${points} Піксель.`);
     } catch (err) {
         console.error('Failed checkin:', err);
         ctx.reply('Сталася помилка під час відмітки відвідуваності.');

@@ -42,3 +42,5 @@ coverage/
 # dist/
 # build/
 
+
+config/google-credentials.json

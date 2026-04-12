@@ -2,6 +2,7 @@ const Training = require('../../models/training.js');
 const User = require('../../models/user.js');
 const { Scenes } = require('telegraf');
 const { PROFILE_SCENE_ID } = require('../scenes');
+const { JOIN_CLUB_SCENE_ID } = require('../scenes/joinClub.scene');
 const { getOrCreateUser, checkUserName, checkAdmin } = require('../middlewares/auth.js');
 const { parseDate } = require('../utils/dateUtils');
 const { getText } =  require('../../locales');
@@ -14,7 +15,7 @@ const actionCache = new Set();
 
 async function addTrainingHelper(ctx, time, location) {
 
-    if (!await isAdmin(ctx)) return ctx.answerCbQuery('Только для админов');
+    if (!await isAdmin(ctx)) return ctx.answerCbQuery('Тільки для адмінів');
 
     const today = new Date();
     today.setDate(today.getDate() + 1);
@@ -41,7 +42,7 @@ async function deleteTrainingHelper(ctx, time, location) {
     if (!await isAdmin(ctx)) return ctx.answerCbQuery('Тільки для адмінів');
 
     const today = new Date();
-    today.setDate(today.getDate() + 1); // Ищем на завтра
+    today.setDate(today.getDate() + 1); // Search for tomorrow
     const date = `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
     try {
         const result = await Training.deleteOne({ date, time, location });
@@ -86,10 +87,10 @@ async function handleCustomWorkout(ctx) {
     const today = new Date();
     today.setDate(today.getDate() + 1);
     const date = `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
-    const location = "Локация";
+    const location = "Місце";
     const time = '08:30';
     const draftMessage = `/addtraining ${date} ${time} ${location}`;
-    await ctx.reply( `Скопіюй і зміни: \`${draftMessage}\``, { parse_mode: 'MarkdownV2' });
+    await ctx.reply( `Скопіюйте та змініть за потребою: \`${draftMessage}\``, { parse_mode: 'MarkdownV2' });
     await ctx.answerCbQuery();
 }
 
@@ -110,7 +111,7 @@ async function handleNotGoAction(ctx, match) {
         const groupId = process.env.GROUP_CHAT_ID;
 
         if (groupId) {
-            await bot.telegram.sendMessage(groupId, `:_( @${user.username || user.name} не сможет`, { message_thread_id: threadId });
+            await bot.telegram.sendMessage(groupId, `@${user.username || user.name} не зможе приєднатись :-(`, { message_thread_id: threadId });
         }
         actionCache.add(cacheKey);
         ctx.answerCbQuery('Шкода :(');
@@ -170,8 +171,8 @@ async function handleGoAction(ctx, match) {
 
 
 
-async function handleJoinAgree(ctx) {
-    const groupLink = process.env.GROUP_LINK || 'https://t.me/your_group_invite_link'; //
+async function handleJoinAgreeAdult(ctx) {
+    const groupLink = process.env.GROUP_LINK || 'https://t.me/your_group_invite_link';
     try {
         const user = await getOrCreateUser(ctx);
 
@@ -180,19 +181,38 @@ async function handleJoinAgree(ctx) {
             return ctx.answerCbQuery('Ви вже в клубі!');
         }
 
+        await ctx.editMessageText(
+            'Чудово! Ви обрали реєстрацію як Дорослий. Тепер давайте заповнимо вашу анкету.'
+        );
+        ctx.answerCbQuery('Ласкаво просимо!');
 
-        await user.save();
+        await ctx.scene.enter(JOIN_CLUB_SCENE_ID);
+
+    } catch (err){
+        console.error('Failed Join club agree adult:', err);
+        ctx.answerCbQuery('Сталася помилка.');
+    }
+}
+
+async function handleJoinAgreeKid(ctx) {
+    const groupLink = process.env.GROUP_LINK || 'https://t.me/your_group_invite_link';
+    try {
+        const user = await getOrCreateUser(ctx);
+
+        if (user.joinedClub) {
+            await ctx.editMessageText(`Ви вже в клубі! Ось посилання на групу:\n${groupLink}`);
+            return ctx.answerCbQuery('Ви вже в клубі!');
+        }
 
         await ctx.editMessageText(
-            'Чудово! Ви прийняли умови клубу. Тепер давайте заповнимо ваш профіль.'
+            'Чудово! Ви обрали реєстрацію як Дитина. Тепер давайте заповнимо ваш профіль.'
         );
         ctx.answerCbQuery('Ласкаво просимо!');
 
         await ctx.scene.enter(PROFILE_SCENE_ID);
 
-
     } catch (err){
-        console.error('Failed Join club agree:', err);
+        console.error('Failed Join club agree kid:', err);
         ctx.answerCbQuery('Сталася помилка.');
     }
 }
@@ -219,21 +239,40 @@ const regexActionHandlers = [
 ];
 
 const actionHandlersMap = {
-    'add411_18': (ctx) => addTrainingHelper(ctx, '18:00', '411 Батарея'),
-    'addILA_10': (ctx) => addTrainingHelper(ctx, '10:00', 'I❤️A'),
-    'addLanzh_11': (ctx) => addTrainingHelper(ctx, '11:00', 'Ланжерон'),
-    'addWeekday': (ctx) => addTrainingHelper(ctx, '17:00', 'Меморіал 411'),
-    'addWeekend': (ctx) => addTrainingHelper(ctx, '15:00', 'Ланжерон'),
+    // Lanzheron
+    'add_l_10': (ctx) => addTrainingHelper(ctx, '10:00', 'Ланжерон'),
+    'add_l_11': (ctx) => addTrainingHelper(ctx, '11:00', 'Ланжерон'),
+    'add_l_12': (ctx) => addTrainingHelper(ctx, '12:00', 'Ланжерон'),
+    'del_l_10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'Ланжерон'),
+    'del_l_11': (ctx) => deleteTrainingHelper(ctx, '11:00', 'Ланжерон'),
+    'del_l_12': (ctx) => deleteTrainingHelper(ctx, '12:00', 'Ланжерон'),
 
-    'del411_18': (ctx) => deleteTrainingHelper(ctx, '18:00', '411 Батарея'),
-    'delILA_10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'I❤️A'),
-    'delLanzh_11': (ctx) => deleteTrainingHelper(ctx, '11:00', 'Ланжерон'),
-    'delWeekday': (ctx) => deleteTrainingHelper(ctx, '17:00', 'Меморіал 411'),
-    'delWeekend': (ctx) => deleteTrainingHelper(ctx, '15:00', 'Ланжерон'),
+    // Sanatorium-Arkadia
+    'add_s_10': (ctx) => addTrainingHelper(ctx, '10:00', 'Санаторій-Аркадія'),
+    'add_s_11': (ctx) => addTrainingHelper(ctx, '11:00', 'Санаторій-Аркадія'),
+    'add_s_12': (ctx) => addTrainingHelper(ctx, '12:00', 'Санаторій-Аркадія'),
+    'del_s_10': (ctx) => deleteTrainingHelper(ctx, '10:00', 'Санаторій-Аркадія'),
+    'del_s_11': (ctx) => deleteTrainingHelper(ctx, '11:00', 'Санаторій-Аркадія'),
+    'del_s_12': (ctx) => deleteTrainingHelper(ctx, '12:00', 'Санаторій-Аркадія'),
+
+    // TZ-Arkadia
+    'add_tz_07': (ctx) => addTrainingHelper(ctx, '07:00', 'ТЗ-Аркадія'),
+    'add_tz_08': (ctx) => addTrainingHelper(ctx, '08:00', 'ТЗ-Аркадія'),
+    'add_tz_09': (ctx) => addTrainingHelper(ctx, '09:00', 'ТЗ-Аркадія'),
+    'del_tz_07': (ctx) => deleteTrainingHelper(ctx, '07:00', 'ТЗ-Аркадія'),
+    'del_tz_08': (ctx) => deleteTrainingHelper(ctx, '08:00', 'ТЗ-Аркадія'),
+    'del_tz_09': (ctx) => deleteTrainingHelper(ctx, '09:00', 'ТЗ-Аркадія'),
+
+    // 411-Batareya
+    'add_411_17': (ctx) => addTrainingHelper(ctx, '17:00', '411-Батарея'),
+    'add_411_18': (ctx) => addTrainingHelper(ctx, '18:00', '411-Батарея'),
+    'del_411_17': (ctx) => deleteTrainingHelper(ctx, '17:00', '411-Батарея'),
+    'del_411_18': (ctx) => deleteTrainingHelper(ctx, '18:00', '411-Батарея'),
 
     'delAllWorkout': deleteAllUpcomingTrainings,
     'customWorkout': handleCustomWorkout,
-    'join_agree': handleJoinAgree,
+    'join_agree_adult': handleJoinAgreeAdult,
+    'join_agree_kid': handleJoinAgreeKid,
     'join_decline': handleJoinDecline,
 };
 

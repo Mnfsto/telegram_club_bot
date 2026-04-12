@@ -3,12 +3,11 @@ const Training = require("../../../models/training");
 const {parseDate, formatDates} = require("../../utils/dateUtils");
 
 const keyboardDeleteWorkout = Markup.inlineKeyboard([
-    [Markup.button.callback("Видалити Завтра 411 Б. 18:00", "del411_18")],
-    [Markup.button.callback("Видалити Завтра I❤️A 10:00", "delILA_10")],
-    [Markup.button.callback("Видалити Завтра Ланж. 11:00", "delLanzh_11")],
-    [Markup.button.callback("Видалити Завтра 17:00 411 Б.", "delWeekday")],
-    [Markup.button.callback("Видалити Завтра 15:00 Ланж.", "delWeekend")],
-    [Markup.button.callback("Видалити Всі Тренування", "delAllWorkout")],
+    [Markup.button.callback("Ланжерон 🌊 10:00", "del_l_10"), Markup.button.callback("11:00", "del_l_11"), Markup.button.callback("12:00", "del_l_12")],
+    [Markup.button.callback("Санаторій-Аркадія 🏥 10:00", "del_s_10"), Markup.button.callback("11:00", "del_s_11"), Markup.button.callback("12:00", "del_s_12")],
+    [Markup.button.callback("ТЗ-Аркадія 🏃‍♂️ 07:00", "del_tz_07"), Markup.button.callback("08:00", "del_tz_08"), Markup.button.callback("09:00", "del_tz_09")],
+    [Markup.button.callback("411-Батарея ⚔️ 17:00", "del_411_17"), Markup.button.callback("18:00", "del_411_18")],
+    [Markup.button.callback("🗑️ Видалити Всі Тренування", "delAllWorkout")],
 ]);
 
 

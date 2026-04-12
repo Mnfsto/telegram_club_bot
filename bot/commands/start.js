@@ -3,6 +3,7 @@ const {Markup} = require("telegraf");
 const handleCertActivation = require("../handlers/keyboardHandlers/handleCertActivation");
 const Certificate = require('../../models/certificates');
 const { getText} = require('../../locales');
+const { ACTIVATE_CERT_SCENE_ID } = require("../scenes/activateCertificate.scene");
 
 
 async function startCommand (ctx){
@@ -11,12 +12,12 @@ async function startCommand (ctx){
     let user = await User.findOne({ telegramId });
     let dynamicButtonText = '';
     try {
-        const certActive = await Certificate.findOne({ redeemedBy: telegramId, status: 'Погашен' }); // Ищем погашенный пользователем
+        const certActive = await Certificate.findOne({ redeemedBy: telegramId, status: 'Погашений' }); // Search for redeemed by user
         const dynamicButtonKey = (certActive !== null) ? 'nextTrainingBtn' : 'activateCertBtn';
         dynamicButtonText = getText(dynamicButtonKey);
     } catch (error) {
         console.error("Error checking certificate status for button:", error);
-        dynamicButtonText = getText('activateCertBtn'); // По умолчанию кнопка активации при ошибке
+        dynamicButtonText = getText('activateCertBtn'); // Default activation button on error
     }
     const admin = process.env.ADMIN_CHAT_ID;
     if (telegramId == admin) {
@@ -59,6 +60,11 @@ async function startCommand (ctx){
 
     }
 
+    if (ctx.startPayload && ctx.startPayload.startsWith('cert_')) {
+        const code = ctx.startPayload.replace('cert_', '').toUpperCase();
+        await ctx.reply(`🔍 Знайдено QR-код (стикер): ${code}. Починаємо активацію...`);
+        return ctx.scene.enter(ACTIVATE_CERT_SCENE_ID, { prefillCode: code });
+    }
 }
 
 module.exports = startCommand;

@@ -5,6 +5,7 @@ const User = require('../../models/user');
 const { getOrCreateUser } = require('../middlewares/auth');
 const { getText } =  require('../../locales');
 const { ADMIN_METADATA_SCENE_ID } = require('./adminMetadata.scene');
+const { awardPixels } = require('../utils/pixelSystem');
 const ACTIVATE_CERT_SCENE_ID = 'activateCertificateScene';
 
 const activateCertScene = new Scenes.BaseScene(ACTIVATE_CERT_SCENE_ID);
@@ -12,8 +13,21 @@ const activateCertScene = new Scenes.BaseScene(ACTIVATE_CERT_SCENE_ID);
 activateCertScene.enter(async (ctx) => {
     console.log(`User ${ctx.from.id} entered activate cert scene.`);
     ctx.scene.state.activationData = {};
+    
+    // Handle pre-filled code (e.g. from QR sticker)
+    if (ctx.scene.state.prefillCode) {
+        ctx.message = { text: ctx.scene.state.prefillCode };
+        // Simulate text input for automatic processing
+        return activateCertScene.handleT(ctx); // Ask user to confirm or process below
+        // Actually, Telegraf scenes need manual trigger or we just set text and let the next middleware run?
+        // Let's just ask them to confirm the code:
+        return ctx.reply(`You followed a QR code.\nEnter your code (${ctx.scene.state.prefillCode}) to confirm trial workout activation:`,
+            Markup.inlineKeyboard([Markup.button.callback(getText('cancelButton'), 'cancel_scene')])
+        );
+    }
+    
     await ctx.reply(
-        getText('certActivationEnterPrompt'),
+        "Enter the sticker code to activate trial workout:",
         Markup.inlineKeyboard([
             Markup.button.callback(getText('cancelButton'), 'cancel_scene')
         ])
@@ -46,7 +60,7 @@ activateCertScene.on('text', async (ctx) => {
     try {
         if (!currentState.certificate) {
             const userInputCode = userAnswer.toUpperCase();
-            console.log(`Користувач ${telegramId} ввів код: ${userInputCode}`);
+            console.log(`User ${telegramId} entered code: ${userInputCode}`);
             if (!userInputCode) {
                 return ctx.reply(getText('certActivationCodeEmptyError'), cancelBtnMarkup);
             }
@@ -55,25 +69,25 @@ activateCertScene.on('text', async (ctx) => {
             if (!certificate) {
                 return ctx.reply(getText('certNotFound', { code: userInputCode }), cancelBtnMarkup);
             }
-            if (certificate.status !== 'Активен') {
+            if (certificate.status !== 'Активний') {
                 await ctx.reply(getText('certAlreadyUsed', { code: userInputCode, status: certificate.status }));
                 return await ctx.scene.leave();
             }
             if (certificate.expiresAt && certificate.expiresAt < new Date()) {
-                certificate.status = 'Просрочен'; await certificate.save();
+                certificate.status = 'Прострочений'; await certificate.save();
                 await ctx.reply(getText('certExpired', { code: userInputCode }));
                 return await ctx.scene.leave();
             }
 
             currentState.certificate = certificate;
-            console.log(`Сертифікат ${certificate.code} валідний для користувача ${telegramId}.`);
+            console.log(`Certificate ${certificate.code} valid for user ${telegramId}.`);
 
             const user = await getOrCreateUser(ctx);
             const userIsAdmin = await isAdmin(ctx);
 
             if (userIsAdmin) {
 
-                console.log(`Користувач ${telegramId} є адміном. Перехід в сцену метаданих.`);
+                console.log(`User ${telegramId} is an admin. Transitioning to metadata scene.`);
                 await ctx.scene.leave();
                 await ctx.scene.enter(ADMIN_METADATA_SCENE_ID, { certificate: certificate });
                 return;
@@ -81,10 +95,10 @@ activateCertScene.on('text', async (ctx) => {
             }
 
             if (user && user.joinedClub && user.fullName && user.phone) {
-                console.log(`Користувач ${telegramId} вже зареєстрований. Пропускаємо збір даних.`);
+                console.log(`User ${telegramId} is already registered. Skipping data collection.`);
                 return await finalizeActivation(ctx);
             } else {
-                console.log(`Користувачу ${telegramId} потрібні дані профілю. Запитуємо Ім'я та Прізвище.`);
+                console.log(`User ${telegramId} needs profile data. Requesting Name and Surname.`);
                 currentState.needsData = true;
                 await ctx.reply(getText('certActivationPromptName'), cancelBtnMarkup);
             }
@@ -93,7 +107,7 @@ activateCertScene.on('text', async (ctx) => {
                 return ctx.reply(getText('certActivationNameTooShort'), cancelBtnMarkup);
             }
             currentState.fullName = userAnswer;
-            console.log(`Отримано fullName: ${userAnswer} для користувача ${telegramId}`);
+            console.log(`Received fullName: ${userAnswer} for user ${telegramId}`);
             await ctx.reply(getText('certActivationPromptPhone'), cancelBtnMarkup);
 
         } else if (currentState.needsData && !currentState.phone) {
@@ -101,12 +115,12 @@ activateCertScene.on('text', async (ctx) => {
                 return ctx.reply(getText('certActivationPhoneFormatError'), cancelBtnMarkup);
             }
             currentState.phone = userAnswer;
-            console.log(`Отримано phone: ${userAnswer} для користувача ${telegramId}. Усі дані зібрано.`);
+            console.log(`Received phone: ${userAnswer} for user ${telegramId}. Data collection complete.`);
             return await finalizeActivation(ctx);
         }
 
     } catch (error) {
-        console.error(`Помилка в activateCertScene для користувача ${telegramId}:`, error);
+        console.error(`Error in activateCertScene for user ${telegramId}:`, error);
         await ctx.reply(getText('certActivationGenericError'));
         await ctx.scene.leave();
     }
@@ -119,25 +133,27 @@ async function finalizeActivation(ctx) {
     const adminChatId = process.env.ADMIN_CHAT_ID;
     let userDataCollected = false;
 
-    console.log(`Фіналізація активації для користувача ${telegramId}, сертифікат ${certificate.code}`);
+    console.log(`Finalizing activation for user ${telegramId}, certificate ${certificate.code}`);
 
     try {
         const user = await getOrCreateUser(ctx);
 
-        user.pixels = (user.pixels || 0) + certificate.nominal;
+        // Award 5 pixels for finding the sticker (trial activation)
+        await awardPixels(user, 5, ctx.telegram, telegramId);
+
         if (state.needsData) {
             user.fullName = state.fullName;
             user.phone = state.phone;
             userDataCollected = true;
         }
         await user.save();
-        console.log(`Дані користувача ${telegramId} оновлено. Пікселі: ${user.pixels}`);
+        console.log(`User ${telegramId} data updated. Pixels: ${user.pixels}`);
 
-        certificate.status = 'Погашен';
+        certificate.status = 'Погашений';
         certificate.redeemedAt = new Date();
         certificate.redeemedBy = telegramId;
         await certificate.save();
-        console.log(`Статус сертифіката ${certificate.code} змінено на 'Погашен'.`);
+        console.log(`Certificate ${certificate.code} status changed to 'Погашений'.`);
 
         if (adminChatId) {
             try {
@@ -157,13 +173,13 @@ async function finalizeActivation(ctx) {
                 }
 
                 await ctx.telegram.sendMessage(adminChatId, adminMessage);
-                console.log(`Повідомлення адміну ${adminChatId} надіслано успішно.`);
+                console.log(`Message to admin ${adminChatId} sent successfully.`);
 
             } catch (adminNotifyError) {
-                console.error(`Не вдалося надіслати повідомлення адміну ${adminChatId}:`, adminNotifyError);
+                console.error(`Failed to send message to admin ${adminChatId}:`, adminNotifyError);
             }
         } else {
-            console.warn("ADMIN_CHAT_ID не встановлено. Пропускаємо повідомлення адміну.");
+            console.warn("ADMIN_CHAT_ID not set. Skipping admin notification.");
         }
 
         let scheduleInfo = getText('scheduleInfoPlaceholder');
@@ -178,7 +194,7 @@ async function finalizeActivation(ctx) {
         await ctx.reply(finalMessage);
 
     } catch (dbError) {
-        console.error(`Помилка під час фінальної активації для користувача ${telegramId}:`, dbError);
+        console.error(`Error during final activation for user ${telegramId}:`, dbError);
         await ctx.reply(getText('certActivationDbError'));
     } finally {
         await ctx.scene.leave();

@@ -14,14 +14,14 @@ adminMetadataScene.enter(async (ctx) => {
     const certificate = ctx.scene.state.certificate;
 
     if (!certificate || !certificate.code) {
-        console.error(`Адмін ${telegramId} увійшов до adminMetadataScene без даних сертифіката!`);
-        await ctx.reply(getText('errorGeneric')); // Загальна помилка
+        console.error(`Admin ${telegramId} entered adminMetadataScene without certificate data!`);
+        await ctx.reply(getText('errorGeneric')); // Generic error
         return ctx.scene.leave();
     }
 
     ctx.scene.state = { certificate };
 
-    console.log(`Адмін ${telegramId} увійшов до adminMetadataScene для сертифіката ${certificate.code}. Запит метаданих.`);
+    console.log(`Admin ${telegramId} entered adminMetadataScene for certificate ${certificate.code}. Requesting metadata.`);
 
 
     await ctx.reply(
@@ -32,7 +32,7 @@ adminMetadataScene.enter(async (ctx) => {
 
 
 adminMetadataScene.action('cancel_scene_admin', async (ctx) => {
-    console.log(`Адмін ${ctx.from.id} скасував сцену метаданих (кнопка).`);
+    console.log(`Admin ${ctx.from.id} cancelled metadata scene (button).`);
     await ctx.answerCbQuery(getText('certActivationCancelledCbQuery'));
     try {
         await ctx.editMessageText(getText('certActivationCancelledMessage'));
@@ -43,7 +43,7 @@ adminMetadataScene.action('cancel_scene_admin', async (ctx) => {
 });
 
 adminMetadataScene.command('cancel', async (ctx) => {
-    console.log(`Адмін ${ctx.from.id} скасував сцену метаданих (команда).`);
+    console.log(`Admin ${ctx.from.id} cancelled metadata scene (command).`);
     await ctx.reply(getText('certActivationCancelledMessage'));
     return await ctx.scene.leave();
 });
@@ -57,7 +57,7 @@ adminMetadataScene.on('text', async (ctx) => {
 
 
     if (!certificate) {
-        console.error(`Адмін ${telegramId} в обробнику тексту adminMetadataScene без сертифіката!`);
+        console.error(`Admin ${telegramId} in text handler of adminMetadataScene without certificate!`);
         await ctx.reply(getText('errorGeneric'));
         return ctx.scene.leave();
     }
@@ -73,25 +73,25 @@ adminMetadataScene.on('text', async (ctx) => {
         if (!currentState.issuedTo) {
             if (!userAnswer) { return ctx.reply(getText('inputCannotBeEmpty'), cancelBtnMarkup); }
             currentState.issuedTo = userAnswer;
-            console.log(`Адмін ${telegramId} ввів issuedTo: ${userAnswer}`);
+            console.log(`Admin ${telegramId} entered issuedTo: ${userAnswer}`);
             await ctx.reply(getText('certActivationAdminPromptReason'), cancelBtnMarkup);
 
 
         } else if (!currentState.reason) {
             if (!userAnswer) { return ctx.reply(getText('inputCannotBeEmpty'), cancelBtnMarkup); }
             currentState.reason = userAnswer;
-            console.log(`Адмін ${telegramId} ввів reason: ${userAnswer}`);
+            console.log(`Admin ${telegramId} entered reason: ${userAnswer}`);
             await ctx.reply(getText('certActivationAdminPromptNotes'), skipNotesBtnMarkup);
 
 
-        } else if (currentState.notes === undefined) { // Перевіряємо, чи поле ще не встановлено
-            currentState.notes = userAnswer; // Зберігаємо навіть порожній рядок
-            console.log(`Адмін ${telegramId} ввів notes: ${userAnswer || '(пропущено через текст)'}`);
-            return await finalizeActiveCertAdmin(ctx); // Фіналізуємо
+        } else if (currentState.notes === undefined) { // Check if field is not set yet
+            currentState.notes = userAnswer; // Save even empty string
+            console.log(`Admin ${telegramId} entered notes: ${userAnswer || '(skipped via text)'}`);
+            return await finalizeActiveCertAdmin(ctx); // Finalize
         }
 
     } catch (error) {
-        console.error(`Помилка в adminMetadataScene для адміна ${telegramId}:`, error);
+        console.error(`Error in adminMetadataScene for admin ${telegramId}:`, error);
         await ctx.reply(getText('certActivationGenericError'));
         await ctx.scene.leave();
     }
@@ -104,13 +104,13 @@ adminMetadataScene.action('skip_notes_admin', async (ctx) => {
 
     if (currentState?.certificate && currentState.issuedTo && currentState.reason && currentState.notes === undefined) {
         await ctx.answerCbQuery();
-        try{ await ctx.editMessageText(getText('notesSkipped')); } catch(e){} // Редагуємо або ігноруємо помилку
-        currentState.notes = ''; // Встановлюємо порожні примітки
-        console.log(`Адмін ${telegramId} пропустив примітки в adminMetadataScene.`);
-        return await finalizeActiveCertAdmin(ctx); // Фіналізуємо
+        try{ await ctx.editMessageText(getText('notesSkipped')); } catch(e){} // Edit or ignore error
+        currentState.notes = ''; // Set empty notes
+        console.log(`Admin ${telegramId} skipped notes in adminMetadataScene.`);
+        return await finalizeActiveCertAdmin(ctx); // Finalize
     } else {
         await ctx.answerCbQuery(getText('unexpectedActionError'), { show_alert: true });
-        console.warn(`Неочікувана дія skip_notes_admin від користувача ${telegramId}, стан:`, currentState);
+        console.warn(`Unexpected action skip_notes_admin from user ${telegramId}, state:`, currentState);
     }
 });
 
@@ -122,15 +122,15 @@ async function finalizeActiveCertAdmin(ctx) {
     const adminChatIdsString = process.env.ADMIN_CHAT_IDS || process.env.ADMIN_CHAT_ID;
     const adminChatIds = adminChatIdsString ? adminChatIdsString.split(',').map(id => id.trim()).filter(id => id) : [];
 
-    console.log(`Фіналізація АДМІНСЬКОЇ активації (adminMetadataScene) для адміна ${telegramId}, сертифікат ${certificate.code}`);
+    console.log(`Finalizing ADMIN activation (adminMetadataScene) for admin ${telegramId}, certificate ${certificate.code}`);
 
     try {
 
         const updateResult = await Certificate.findOneAndUpdate(
-            { _id: certificate._id, status: 'Активен' }, // Додаткова умова на статус для безпеки
+            { _id: certificate._id, status: 'Активний' }, // Additional status condition for safety
             {
                 $set: {
-                    status: 'Погашен',
+                    status: 'Погашений',
                     redeemedAt: new Date(),
                     redeemedBy: telegramId,
                     'metadata.issuedTo': state.issuedTo,
@@ -143,12 +143,12 @@ async function finalizeActiveCertAdmin(ctx) {
         );
 
         if (!updateResult) {
-            console.error(`Не вдалося оновити сертифікат ${certificate.code} (можливо, вже погашений іншим процесом).`);
+            console.error(`Failed to update certificate ${certificate.code} (maybe already redeemed by another process).`);
             await ctx.reply(getText('certUpdateFailedError'));
             return await ctx.scene.leave();
         }
 
-        console.log(`Статус сертифіката ${certificate.code} змінено на 'Погашен' (адміном ${telegramId}). Метадані збережено.`);
+        console.log(`Certificate ${certificate.code} status changed to 'Погашений' (by admin ${telegramId}). Metadata saved.`);
 
 
         await ctx.reply(getText('certActivationAdminSuccess', { code: certificate.code }));
@@ -161,27 +161,27 @@ async function finalizeActiveCertAdmin(ctx) {
                 const activatorAdmin = await User.findOne({ telegramId: telegramId });
                 const activatorInfo = activatorAdmin?.username ? `@${activatorAdmin.username}` : `ID: ${telegramId}`;
 
-                let notifyMessage = `${getText('certActivationAdminNotifyHeader')} (Адміном)\n\n` +
+                let notifyMessage = `${getText('certActivationAdminNotifyHeader')} (By Admin)\n\n` +
                     `${getText('certActivationAdminNotifyActivatedBy')} ${activatorInfo}\n` +
                     `${getText('certActivationAdminNotifyCode')} ${updateResult.code}\n` +
                     `${getText('certActivationAdminNotifyNominal')} ${updateResult.nominal} ${updateResult.currency}\n` +
                     `${getText('certActivationAdminNotifyTime')} ${activationTime}\n\n` +
-                    `**Метадані:**\n` +
-                    `  Кому: ${updateResult.metadata.issuedTo || getText('certActivationAdminNotifyNotProvided')}\n` +
+                    `**Metadata:**\n` +
+                    `  To: ${updateResult.metadata.issuedTo || getText('certActivationAdminNotifyNotProvided')}\n` +
                     `  ${getText('certActivationAdminNotifyReason')} ${updateResult.metadata.reason || getText('certActivationAdminNotifyNotProvided')}\n` +
                     `  ${getText('certActivationAdminNotifyNotes')} ${updateResult.metadata.notes || getText('certActivationAdminNotifyNotProvided')}\n`;
 
                 for (const adminId of otherAdminIds) {
                     try {
                         await ctx.telegram.sendMessage(adminId, notifyMessage, { parse_mode: 'Markdown' });
-                        console.log(`Сповіщення про адмін. активацію надіслано адміну ${adminId}`);
-                    } catch (notifyErr) { console.error(`Не вдалося надіслати сповіщення адміну ${adminId}:`, notifyErr); }
+                        console.log(`Notification about admin activation sent to admin ${adminId}`);
+                    } catch (notifyErr) { console.error(`Failed to send notification to admin ${adminId}:`, notifyErr); }
                 }
-            } catch (adminNotifyError) { console.error(`Помилка при сповіщенні інших адмінів:`, adminNotifyError); }
+            } catch (adminNotifyError) { console.error(`Error notifying other admins:`, adminNotifyError); }
         }
 
     } catch (dbError) {
-        console.error(`Помилка під час фінальної АДМІНСЬКОЇ активації (adminMetadataScene, адмін ${telegramId}):`, dbError);
+        console.error(`Error during final ADMIN activation (adminMetadataScene, admin ${telegramId}):`, dbError);
         await ctx.reply(getText('certActivationDbError'));
     } finally {
         await ctx.scene.leave();
