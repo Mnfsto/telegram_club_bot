@@ -41,11 +41,8 @@ const { awardPixels } = require('../utils/pixelSystem');
         training.participants.push(userId);
         await training.save();
 
-        // Award pixels
-        const points = training.type === 'competition' ? 5 : 1;
-        await awardPixels(user, points, ctx.telegram, user.telegramId);
 
-        ctx.reply(`✅ ${username} відзначений(а) на подію ${date} о ${time}. Нараховано ${points} Піксель.`);
+        ctx.reply(`✅ ${username} відзначений(а) на подію ${date} о ${time}. `);
     } catch (err) {
         console.error('Failed checkin:', err);
         ctx.reply('Сталася помилка під час відмітки відвідуваності.');

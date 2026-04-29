@@ -147,9 +147,7 @@ async function handleGoAction(ctx, match) {
         if (!training.participants.some(id => id.equals(user._id))) {
             training.participants.push(user._id);
 
-            user.pixels = (user.pixels || 0) + 1;
             await training.save();
-            await user.save();
 
             if (groupId) {
                 await bot.telegram.sendMessage(
