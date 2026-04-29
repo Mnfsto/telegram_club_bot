@@ -24,7 +24,7 @@ const {
     addCertCommand,
 
 } = require('./commands')
-const checkCommand = require('./check').checkCommand;
+const checkCommand = require('./commands/check').checkCommand;
 
 //Command /start
 bot.start(startCommand);
