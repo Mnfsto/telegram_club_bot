@@ -19,7 +19,7 @@ async function checkCommand (ctx){
            Markup.button.callback(`🕒 ${t.time} - ${t.location}`, `check_tr_${t._id}`)])
        return ctx.reply('Виберіть тренування для перевірки:', Markup.inlineKeyboard(buttons))
    }
-   await showParticipantList(ctx, trainingsToday[0]);
+   await showParticipantList(ctx, trainToday[0]);
   } catch (err) {
       console.error("Failed check", err);
       process.on('unhandledRejection', (reason, promise) => {
