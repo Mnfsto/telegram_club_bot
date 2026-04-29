@@ -29,7 +29,7 @@ async function handleCheckIt (ctx) {
         groupSize === 0 ? message = 'Немає учасників' : message;
 
         ctx.reply(message, { parse_mode: 'Markdown' });
-
+        await ctx.reply();
     } catch (err) {
         console.error('failed checkin training');
         console.log(err);

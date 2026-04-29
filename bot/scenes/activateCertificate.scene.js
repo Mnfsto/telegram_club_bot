@@ -7,7 +7,8 @@ const { getText } =  require('../../locales');
 const { ADMIN_METADATA_SCENE_ID } = require('./adminMetadata.scene');
 const { awardPixels } = require('../utils/pixelSystem');
 const ACTIVATE_CERT_SCENE_ID = 'activateCertificateScene';
-
+// TODO: Translate the scene
+// Scene Certificat
 const activateCertScene = new Scenes.BaseScene(ACTIVATE_CERT_SCENE_ID);
 
 activateCertScene.enter(async (ctx) => {

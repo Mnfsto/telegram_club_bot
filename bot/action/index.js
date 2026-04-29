@@ -13,7 +13,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const actionCache = new Set();
 
-async function addTrainingHelper(ctx, time, location) {
+async function rddTrainingHelper(ctx, time, location) {
 
     if (!await isAdmin(ctx)) return ctx.answerCbQuery('Тільки для адмінів');
 
@@ -235,6 +235,57 @@ async function handleJoinDecline(ctx) {
 const regexActionHandlers = [
     { regex: /notgo_(.+)/, handler: handleNotGoAction },
     { regex: /go_(.+)/, handler: handleGoAction },
+    {
+             regex: /tgl_atn_(.+)_(.+)/,
+             handler: async (ctx, match) => {
+                 const [_, trainingId, userId] = match;
+                 const training = await Training.findById(trainingId);
+
+                const index = training.attended.findIndex(id => id.toString() === userId);
+                if (index > -1) {
+                    training.attended.splice(index, 1);
+                } else {
+                    training.attended.push(userId);
+                }
+
+                await training.save();
+                const { showParticipantList } = require('../commands/check');
+                await showParticipantList(ctx, training, true);
+                await ctx.answerCbQuery();
+            }
+       },
+       {
+                regex: /award_atn_(.+)/,
+                handler: async (ctx, match) => {
+                    const trainingId = match[1];
+                    const training = await Training.findById(trainingId).populate('attended');
+                    const { awardPixels } = require('../utils/pixelSystem');
+
+                    let count = 0;
+                    const points = training.type === 'competition' ? 5 : 1;
+
+                    for (const user of training.attended) {
+                        await awardPixels(user, points, ctx.telegram, user.telegramId);
+                        count++;
+                    }
+
+                    await ctx.editMessageText(`✅ Перевірку завершено!\nВідмічено: ${count} чол.\nНараховано по ${points} Піксель.`);
+                    await ctx.answerCbQuery('Готово!');
+                }
+            },
+            {
+                regex: /check_tr_(.+)/,
+                handler: async (ctx, match) => {
+                        const trainingId = match[1];
+                        const training = await Training.findById(trainingId);
+                        const { showParticipantList } = require('../commands/check');
+                        await showParticipantList(ctx, training, true);
+                        await ctx.answerCbQuery();
+                    }
+                },
+
+
+
     // { regex: /join_(.+)/, handler: handleGroupJoinAction }
 ];
 

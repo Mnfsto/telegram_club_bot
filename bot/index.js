@@ -24,6 +24,7 @@ const {
     addCertCommand,
 
 } = require('./commands')
+const checkCommand = require('./check').checkCommand;
 
 //Command /start
 bot.start(startCommand);
@@ -33,6 +34,7 @@ bot.command('checkout', checkAdmin, checkOutCommand);
 bot.command('checkin', checkAdmin, checkInCommand);
 bot.command('training_info', trainingInfoCommand);
 bot.command('create_cert', addCertCommand);
+bot.command('check', checkAdmin, checkCommand)
 /// User Interface
 const textHandlers = require('./handlers')
 const http = require("node:http");
