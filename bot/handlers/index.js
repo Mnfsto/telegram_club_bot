@@ -10,7 +10,7 @@ const handleSendWorkout = require('./keyboardHandlers/handleSendWorkout');
 const handleRateUs = require('./keyboardHandlers/handleRateUs');
 const handleNextTraining = require('./keyboardHandlers/handleNextTraining');
 const handleCertActivation = require('./keyboardHandlers/handleCertActivation');
-const { isAdmin } =ii require('../middlewares/auth.js');
+const { isAdmin } = require('../middlewares/auth.js');
 const { getText } =  require('../../locales');
 
 const commonButtonActions = new Map([
