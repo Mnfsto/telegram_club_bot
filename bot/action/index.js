@@ -108,10 +108,17 @@ async function handleNotGoAction(ctx, match) {
 
     try {
         const user = await getOrCreateUser(ctx);
+
+        if (!user.username && !user.fullName) {
+            return ctx.answerCbQuery('У вас не встановлено @username. Будь ласка, перейдіть в особисті повідомлення з ботом та заповніть анкету.', { show_alert: true });
+        }
+
+        const displayName = user.username ? `@${user.username}` : user.fullName;
         const groupId = process.env.GROUP_CHAT_ID;
+        const threadId = process.env.GROUP_CHAT_THREAD_TRAINING;
 
         if (groupId) {
-            await bot.telegram.sendMessage(groupId, `@${user.username || user.name} не зможе приєднатись :-(`, { message_thread_id: threadId });
+            await bot.telegram.sendMessage(groupId, `${displayName} не зможе приєднатись :-(`, { message_thread_id: threadId });
         }
         actionCache.add(cacheKey);
         ctx.answerCbQuery('Шкода :(');
@@ -136,8 +143,15 @@ async function handleGoAction(ctx, match) {
 
     try {
         const user = await getOrCreateUser(ctx);
+
+        if (!user.username && !user.fullName) {
+            return ctx.answerCbQuery('У вас не встановлено @username. Будь ласка, перейдіть в особисті повідомлення з ботом та заповніть анкету.', { show_alert: true });
+        }
+
+        const displayName = user.username ? `@${user.username}` : user.fullName;
         const training = await Training.findById(trainingId);
         const groupId = process.env.GROUP_CHAT_ID;
+        const threadId = process.env.GROUP_CHAT_THREAD_TRAINING;
 
         if (!training) {
             if (groupId && threadId) await bot.telegram.sendMessage(groupId, 'Тренування не знайдено.', { message_thread_id: threadId });
@@ -152,7 +166,8 @@ async function handleGoAction(ctx, match) {
             if (groupId) {
                 await bot.telegram.sendMessage(
                     process.env.GROUP_CHAT_ID,
-                    `✅ @${ctx.from.username} відзначений на тренуванні.`,
+                    `✅ ${displayName} відзначений на тренуванні.`,
+                    { message_thread_id: threadId }
                 );
             }
             actionCache.add(cacheKey);

@@ -21,7 +21,10 @@ async function handleCheckIt (ctx) {
             const listParticipants = training.participants;
             const participants = await User.find({ _id: { $in: listParticipants } });
             const participantList = participants.length
-                ? participants.map((user, index) => `${index + 1}. @${user.username}`).join('\n')
+                ? participants.map((user, index) => {
+                    const displayName = user.username ? `@${user.username}` : (user.fullName || user.name || `Користувач ${user.telegramId}`);
+                    return `${index + 1}. ${displayName}`;
+                }).join('\n')
                 : 'Немає учасників';
             groupSize += 1;
             message += `📅 *${training.date} о ${training.time}* (${training.location || 'Місце не вказано'}):\n${participantList}\n\n`;
