@@ -13,7 +13,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const actionCache = new Set();
 
-async function rddTrainingHelper(ctx, time, location) {
+async function addTrainingHelper(ctx, time, location) {
 
     if (!await isAdmin(ctx)) return ctx.answerCbQuery('Тільки для адмінів');
 
