@@ -6,8 +6,9 @@ const Training = require('../models/training');
 const Certificate = require('../models/certificates');
 const { profileScene, PROFILE_SCENE_ID } = require('./scenes');
 const { activateCertScene, ACTIVATE_CERT_SCENE_ID } = require('./scenes/activateCertificate.scene');
-
-const stage = new Scenes.Stage([profileScene, activateCertScene]);
+const { adminMetadataScene, ADMIN_METADATA_SCENE_ID } = require('./scenes/adminMetadata.scene');
+const { joinClubWizard } = require('./scenes/joinClub.scene');
+const stage = new Scenes.Stage([profileScene, activateCertScene, adminMetadataScene, joinClubWizard]);
 bot.use(session());
 bot.use(stage.middleware());
 //User Authentication
@@ -23,6 +24,7 @@ const {
     addCertCommand,
 
 } = require('./commands')
+const checkCommand = require('./commands/check').checkCommand;
 
 //Command /start
 bot.start(startCommand);
@@ -32,6 +34,7 @@ bot.command('checkout', checkAdmin, checkOutCommand);
 bot.command('checkin', checkAdmin, checkInCommand);
 bot.command('training_info', trainingInfoCommand);
 bot.command('create_cert', addCertCommand);
+bot.command('check', checkAdmin, checkCommand)
 /// User Interface
 const textHandlers = require('./handlers')
 const http = require("node:http");
@@ -43,8 +46,8 @@ const createHandleRemind = require('../bot/handlers/keyboardHandlers/handleRemin
 const createHandleSendWorkout = require('../bot/handlers/keyboardHandlers/handleSendWorkout.js');
 const handleSendWorkout = createHandleSendWorkout(bot);
 const handleRemind = createHandleRemind(bot);
-bot.hears('🗣️ Send a workout', checkAdmin, handleSendWorkout);
-bot.hears("📢 Remind everyone", checkAdmin, handleRemind);
+bot.hears('🗣️ Надіслати Анонс', checkAdmin, handleSendWorkout);
+bot.hears("📢 Нагадати Всім", checkAdmin, handleRemind);
 
 
 const { handleCallbackQuery } = require('./action')
@@ -57,7 +60,7 @@ bot.on('message', async (ctx, next) => {
     const threadId = ctx.message.message_thread_id;
     const telegramId = ctx.from.id;
 
-    console.log(`Получено сообщение из чата ${chatId} - ${threadId}: ${messageText}`);
+    console.log(`Отримано повідомлення з чату ${chatId} - ${threadId}: ${messageText}`);
 
     if (chatType === 'group' || chatType === 'supergroup') {
         const user = await getOrCreateUser(ctx);

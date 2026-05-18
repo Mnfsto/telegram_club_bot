@@ -21,8 +21,8 @@ const certificateSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['Активен', 'Погашен', 'Просрочен', 'Деактивирован'],
-        default: 'Активен',
+        enum: ['Активний', 'Погашений', 'Прострочений', 'Деактивований'],
+        default: 'Активний',
         index: true,
     },
     expiresAt: {

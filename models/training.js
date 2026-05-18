@@ -8,7 +8,7 @@ const TrainingSchema = new mongoose.Schema({
     participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     trainer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     attended: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-
+    type: { type: String, enum: ['training', 'competition'], default: 'training' }
 });
 
 module.exports = mongoose.model("Training", TrainingSchema);

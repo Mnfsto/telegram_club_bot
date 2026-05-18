@@ -1,41 +1,67 @@
 const Training = require("../../../models/training");
 const User = require("../../../models/user");
-
-
+const { formatDates } = require("../../utils/dateUtils");
 
 module.exports = function (bot){
-   return async function handleRemind (ctx) {
-        const today = new Date();
-        today.setDate(today.getDate() + 1);
-        const formattedDate = `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
+    return async function handleRemind (ctx) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const formattedDate = formatDates ? formatDates(tomorrow) : `${tomorrow.getDate().toString().padStart(2, '0')}.${(tomorrow.getMonth() + 1).toString().padStart(2, '0')}.${tomorrow.getFullYear()}`;
 
         try {
-            const nextTraining = await Training.findOne({date: formattedDate});
-            if (nextTraining === null) return ctx.reply("Нет участников на следущую тренировку !");
-            const participants = nextTraining.participants;
 
+            const trainingsTomorrow = await Training.find({ date: formattedDate }).sort({ time: 1 });
 
-            const users = await User.find({ _id: { $in: participants } });
-            console.log("Рассылаю тренировки пользователям", formattedDate);
-            const train = `📅 ${nextTraining.date} в ${nextTraining.time}, 📍 ${nextTraining.location}\n`;
-            console.log(train);
-            let successCount = 0;
-            for (const user of users) {
-                const message = `Привет, @${user.username || user.telegramId}! Завтра тренировка 💪\n${train}`;
-                try {
-                    await bot.telegram.sendMessage(user.telegramId, message);
-                    successCount++;
-                    console.log(`Уведомление отправлено ${user.username || user.telegramId}`);
-                } catch (err) {
-                    console.error(`Ошибка отправки ${user.telegramId}:`, err);
-                }
+            if (!trainingsTomorrow || trainingsTomorrow.length === 0) {
+                return ctx.reply("Немає запланованих тренувань на завтра для надсилання нагадувань.");
             }
 
-            ctx.reply(`Уведомлено ${successCount} из ${users.length} участников.`);
-        } catch (err){
-            console.error('failed checkin training');
-            console.log(err);
-        }
+            let totalParticipants = 0;
+            let totalSuccessCount = 0;
 
+            console.log(`Розсилаю нагадування про тренування користувачам на ${formattedDate}`);
+
+            for (const training of trainingsTomorrow) {
+                if (!training.participants || training.participants.length === 0) {
+                    console.log(`Немає учасників для тренування ${training.date} о ${training.time}.`);
+                    continue;
+                }
+
+                const participants = training.participants;
+                const users = await User.find({ _id: { $in: participants } });
+                totalParticipants += users.length;
+
+                const trainInfo = `📅 ${training.date} о ${training.time}, 📍 ${training.location}\n`;
+                console.log(`Нагадування для: ${trainInfo}`);
+
+                let successCount = 0;
+                for (const user of users) {
+                    const message = `Привіт, @${user.username || user.telegramId}! Завтра тренування 💪\n${trainInfo}`;
+                    try {
+                        await bot.telegram.sendMessage(user.telegramId, message);
+                        successCount++;
+                        console.log(`Сповіщення надіслано ${user.username || user.telegramId}`);
+                    } catch (err) {
+
+                        if (err.code === 403 || err.description.includes('chat not found') || err.description.includes('bot was blocked')) {
+                            console.warn(`Не вдалося надіслати повідомлення користувачу ${user.telegramId} (${user.username || 'N/A'}): ${err.description}. Можливо, користувач заблокував бота.`);
+
+                        } else {
+                            console.error(`Помилка надсилання ${user.telegramId}:`, err);
+                        }
+                    }
+                }
+                totalSuccessCount += successCount;
+                console.log(`Сповіщено ${successCount} з ${users.length} учасників для тренування ${training.time}.`);
+            }
+
+            ctx.reply(`Загалом сповіщено ${totalSuccessCount} з ${totalParticipants} учасників про тренування на ${formattedDate}.`);
+
+        } catch (err){
+            console.error('failed sending reminders');
+            console.log(err);
+            ctx.reply('Сталася помилка під час надсилання нагадувань.');
+        }
     }
 };

@@ -8,7 +8,6 @@ console.log(`PORT: ${PORT}`);
 const setupApiServer = require('./api/server.js');
 const startScheduler = require('./scheduler')
 
-
 //Conect DataBase
 connectDB();
 
@@ -41,7 +40,7 @@ try {
 // Close Server
 process.on("SIGINT", async () => {
     //await client.close();
-    console.log("Приложение завершило работу");
+    console.log("Application terminated");
     process.exit();
 })
 
